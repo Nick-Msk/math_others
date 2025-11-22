@@ -1,0 +1,13 @@
+*.swp
+*~
+test/
+lib/
+debug/
+*.dSYM
+*.o
+*.txt
+*.data
+*.swo
+*_test
+*.res
+
