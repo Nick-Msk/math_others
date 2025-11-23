@@ -23,7 +23,7 @@ int				main(int argc, const char *argv[]){
 
 	int cnt = 0;
     if (check_max > 1)
-		cnt = check_natural(1, check_max);
+		cnt = check_natural(check_min, check_max);
 
 	if (cnt > 0)
 		printf("Found %d elements\n", cnt);
@@ -45,11 +45,15 @@ int					check_natural(int from, int to){
 	long res;
 
 	for (int i = from; i <= to; i++){
-		if (f(i, &res) == 0){	// found!!
+		int mod;
+		if ((mod = f(i, &res)) == 0){	// found!!
 			total++;
 			if (g_print_flag)
 				printf("f(%d) = %ld\n", i, res);
 		}
+		//if (i == -1)
+		//	printf("f(%d) = %ld mod=%d\n", i, res, mod);
+
 	}
 
 	return total;
