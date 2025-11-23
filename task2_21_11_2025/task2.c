@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <math.h>
+#include <float.h>
+#include <stdlib.h>
+
+static int 		g_print_flag = 1;
+
+int				check_natural(int, int);
+
+int				main(int argc, const char *argv[]){
+	int check_max = 1000000;
+	int check_min = 1;
+
+	if (argc > 1)
+		check_max = atoi(argv[1]);
+
+	if (argc > 2){
+		check_min = check_max;
+		check_max = atoi(argv[2]);
+	}
+
+	printf("Start checking from %d till %d\n", check_min, check_max);
+
+	int cnt = 0;
+    if (check_max > 1)
+		check_natural(1, check_max);
+
+	if (cnt > 0)
+		printf("Found %d elements\n");
+	else
+		printf("Not found\n");
+
+	return 0;
+}
+
+static inline int 	f(long n){
+	return (int)
+			((13 * n - 1) % (3 * n + 5));
+}
+
+int					check_natural(int from, int to){
+	int total = 0;
+
+	for (int i = from; i <= to; i++){
+		if (f(i) == 0){	// found!!
+			total++;
+			if (g_print_flag)
+				printf("N = %d\n", i);
+		}
+	}
+
+	return total;
+}
+
+
