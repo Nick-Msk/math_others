@@ -3,6 +3,7 @@
 test/
 lib/
 debug/
+out/
 *.dSYM
 *.o
 *.txt
