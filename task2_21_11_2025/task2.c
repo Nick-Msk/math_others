@@ -23,29 +23,32 @@ int				main(int argc, const char *argv[]){
 
 	int cnt = 0;
     if (check_max > 1)
-		check_natural(1, check_max);
+		cnt = check_natural(1, check_max);
 
 	if (cnt > 0)
-		printf("Found %d elements\n");
+		printf("Found %d elements\n", cnt);
 	else
 		printf("Not found\n");
 
 	return 0;
 }
 
-static inline int 	f(long n){
+static inline int 	f(long n, long *val){
+	if (val)
+		*val = (13 * n - 1) / (3 * n + 5);
 	return (int)
 			((13 * n - 1) % (3 * n + 5));
 }
 
 int					check_natural(int from, int to){
 	int total = 0;
+	long res;
 
 	for (int i = from; i <= to; i++){
-		if (f(i) == 0){	// found!!
+		if (f(i, &res) == 0){	// found!!
 			total++;
 			if (g_print_flag)
-				printf("N = %d\n", i);
+				printf("f(%d) = %ld\n", i, res);
 		}
 	}
 
