@@ -7,10 +7,10 @@ LDLIBS=
 
 all:
 
-run:
-		debug/check_textsearch
+#run:
+#		debug/check_textsearch
 
-91task: src/91task.c
+91task: src/91task.c lib/log.o
 		$(CC) $(CFLAGS)  $^ -o out/$@
 
 #  TODO: add compl+alg
@@ -18,20 +18,20 @@ UTIL_PATH = ../utils
 
 # libs from utils
 lib/log.o:
-	cd $(UTIL_PATH) && $(MAKE) log
+	cd $(UTIL_PATH) && $(MAKE) log.o
 	@cp $(UTIL_PATH)/log.o lib/
 
 lib/test.o:
-		cd $(UTIL_PATH) && $(MAKE) test
-		@cp $(UTIL_PATH)/test.o lib/
+	cd $(UTIL_PATH) && $(MAKE) test
+	@cp $(UTIL_PATH)/test.o lib/
 
 lib/error.o:
-		cd $(UTIL_PATH) && $(MAKE) error
-		@cp $(UTIL_PATH)/error.o lib/
+	cd $(UTIL_PATH) && $(MAKE) error
+	@cp $(UTIL_PATH)/error.o lib/
 
 lib/common.o:
-		cd $(UTIL_PATH) && $(MAKE) error
-		@cp $(UTIL_PATH)/common.o lib/
+	cd $(UTIL_PATH) && $(MAKE) error
+	@cp $(UTIL_PATH)/common.o lib/
 
 .PHONY: clean cleanlog cleanall no_targets__ list
 clean:

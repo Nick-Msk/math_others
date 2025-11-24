@@ -6,12 +6,15 @@
 #include <stdbool.h>
 
 #include "log.h"
+#include "check.h"
+#include "common.h"
 
 bool			gen_strings(char *buf, int cnt, int cnt_oper, int dec_value);
 
 int				calc_string(const char *s, int elem);
 
 int				main(int argc, const char *argv[]){
+	loginit("91task.log", false, 0, "Start");
 
 	int cnt_oper = 3;		// as per task
 	int des_value = 100;	// as per task
@@ -40,6 +43,7 @@ int				main(int argc, const char *argv[]){
 	else 
 		printf("%s = %d n*/
 
+	logclose("...");
 	return 0;
 }
 
