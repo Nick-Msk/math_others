@@ -20,8 +20,13 @@ API:
 #define 		TOTAL_MOD		"Total modules[%d]\n"
 #define 		MODULE_DESC		"Modname(%d) %s: level[%d]\n"
 
-static 			const int		MAX_SZ				=4096;			// better to use POSIX or SC limitation instead of this constant
-static 			const int		TIME_SZ				=100;
+// static 			const int		MAX_SZ				=4096;			// better to use POSIX or SC limitation instead of this constant
+// define for gcc
+#define			MAX_SZ			4096																	
+//static 			const int		TIME_SZ				=100;
+// define for gcc
+#define 		TIME_SZ			100
+
 static			const int		OFFSET_INC			=4;
 
 static			int				g_offset			=0;				// current logging offset
