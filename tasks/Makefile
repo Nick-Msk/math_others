@@ -1,10 +1,13 @@
 CC=gcc #clang
 CFLAGS= -I../utils/ -Wall -Wextra -std=gnu11 -g -O0
-LDFLAGS=
+LDFLAGS= -lm
 LDLIBS=
 
 4task: src/4task.c
 		$(CC) $(CFLAGS)  $^ -o out/$@
+
+5task: src/5task.c lib/log.o
+		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
 UTIL_PATH = ../utils
 
