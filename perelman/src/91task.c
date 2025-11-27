@@ -9,9 +9,15 @@
 #include "check.h"
 #include "common.h"
 
+struct op_sym{
+	int		sz;
+	char 	sym[sz + 1];
+	char	op[sz];
+};
+
 bool			gen_strings(char *orig_buf, int orig_cnt, char *buf, int cnt, int cnt_oper, int dec_value);
 
-int				calc_string(const char *s, int elem);
+int				calc_string(const op_sym *s, int elem);
 
 int				main(int argc, const char *argv[]){
 	loginit("log/91task.log", false, 0, "Start");
@@ -34,6 +40,7 @@ int				main(int argc, const char *argv[]){
 	// main part
 	const int BUF_CNT = 9;
 	char buf[BUF_CNT * 2 + 1];
+	int found_cnt = 0;
 
 	// setup buffer
 	buf[BUF_CNT * 2 + 1] = '\0';
@@ -44,19 +51,22 @@ int				main(int argc, const char *argv[]){
 	}
 	printf("[%s]\n", buf);
 
-	gen_strings(buf, BUF_CNT, buf, BUF_CNT, cnt_oper, des_value);
+	if ((found_cnt = gen_strings(buf, BUF_CNT, buf, BUF_CNT, cnt_oper, des_value)) > 0)
+		printf("%d was found\n", found_cnt);
+	else
+		printf("Not found...\n");
 
 	logclose("...");
 	return 0;
 }
 
-int				calc_string(const char *s, int elem){
-	logenter("%s[%d]", s, elem);
+int				calc_string(const op_sym *s, int elem){
+	logenter("%s:[%d]", s, elem);
 	
 	int sum = 0, current = 0;
 	char op = ' '; // + or -
-	for (int i = 0; i < elem; i += 2){
-		switch (s[i]){
+	/*for (int i = 0; i < elem; i++){
+		switch (s[2 * i]){
 			case '+': case '-':
 				// calculate last operation (if any)
 				if (op == '+')
@@ -67,12 +77,16 @@ int				calc_string(const char *s, int elem){
 				current = 0;
 			break;
 			case ' ':
-				current = current * 10 + s[i + 1] - '0';	// user type.h? 
+				current = current * 10 + s[2 * i + 1] - '0';	// use type.h? 
 			break;
 		}
 	}
+	*/
+	for (int i = 0; i < elem; i++){
+		switch(s[2 * i]
+	}
 	
-	if (op == '+')
+	if (op == '+' || op == ' ')
 		sum += current;
 	else if (op == '-')
 		sum -= current;
@@ -92,11 +106,11 @@ bool			gen_strings(char *orig_buf, int orig_cnt, char *buf, int cnt, int cnt_ope
 		// exec calc_string
 		if ((res = calc_string(orig_buf, orig_cnt)) == des_value)
 			printf("FOUND: %s = %d\n", orig_buf, res);
-		buf[1] = '+';
+		buf[0] = '+';
 		if ((res = calc_string(orig_buf, orig_cnt)) == des_value)
 			printf("FOUND: %s = %d\n", orig_buf, res);
-	    buf[1] = '-';
-		if ((res = calc_string(orig_buf, cnt)) == des_value)
+	    buf[0] = '-';
+		if ((res = calc_string(orig_buf, orig_cnt)) == des_value)
 			printf("FOUND: %s = %d\n", orig_buf, res);
 		gen_strings(orig_buf, orig_cnt, buf + 2, cnt - 1, cnt_oper, des_value);
 	}
