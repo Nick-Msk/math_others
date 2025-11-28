@@ -48,7 +48,7 @@ int				main(int argc, const char *argv[]){
 }
 
 static inline int			d_between(double v1, double v2){
-	if (fabs(v1 - v2) < DBL_EPSILON * 1.0e+7)
+	if (fabs(v1 - v2) < DBL_EPSILON * 1.0e+6)
 		return 1;
 	else
 		return 0;
