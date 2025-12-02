@@ -35,6 +35,10 @@ compl_alg.o: compl_alg.c
 	$(CC) $(CFLAGS) $^ -c
 	# TODO: replace to lib/ dir
 
+eng_runner.o: eng_runner.c
+	$(CC) $(CFLAGS) $^ -c
+	mv $@ lib/
+
 test: test.c error.o log.o
 	$(CC) $(CFLAGS) -DTESTTESTING $^ -o $@_test
 
