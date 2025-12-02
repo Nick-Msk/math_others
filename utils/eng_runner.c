@@ -9,7 +9,7 @@ int                             eng_int_2dim(struct eng_int_interval rt, long va
     for (int x = rt.fromX; x <= rt.toX; x++)
     	for (int y = rt.fromY; y <= rt.toY; y++){
         	if (rt.target(x, y, val)){
-            	if (rt.print_flag)
+            	if (rt.printFlag)
                 	printf("Target function(%d, %d) is true for %ld)\n", x, y, val);
                 if (rt.stopRun)
                    	return 1;
@@ -31,6 +31,6 @@ int                             fautoprint(FILE *f, const struct eng_int_interva
 	int cnt = 0;
 	// use my bool.h instead of standard
 	fprintf(f, "fromX=%d, toX=%d, fromY=%d, toY=%d, stopRun=%d, print=%d, target=%p\n",
-			v.fromX, v.toX, v.fromY, v.toY, v.stopRun, v.print_flag, v.target);
+			v.fromX, v.toX, v.fromY, v.toY, v.stopRun, v.printFlag, v.target);
 	return cnt;
 }

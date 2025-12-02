@@ -12,7 +12,7 @@ struct eng_int_interval {
 	int			fromY;
 	int			toY;
 	bool 		stopRun;
-	bool		print_flag;
+	bool		printFlag;
 	f_int2dim	target;
 };
 
