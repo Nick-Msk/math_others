@@ -9,10 +9,12 @@
 #include "check.h"
 #include "common.h"
 
+#define 			OP_SYM_SZ	9
+
 struct op_sym{
 	int		sz;
-	char 	sym[sz + 1];
-	char	op[sz];
+	char 	sym[OP_SYM_SZ + 1];
+	char	op[OP_SYM_SZ];
 };
 
 bool			gen_strings(char *orig_buf, int orig_cnt, char *buf, int cnt, int cnt_oper, int dec_value);

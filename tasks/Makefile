@@ -9,6 +9,13 @@ LDLIBS=
 5task: src/5task.c lib/log.o
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
+6task: src/6task.c
+		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
+
+7task: src/7task.c
+		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
+		
+
 UTIL_PATH = ../utils
 
 # libs from utils
