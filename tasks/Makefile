@@ -12,7 +12,7 @@ LDLIBS=
 6task: src/6task.c
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
-7task: src/7task.c
+7task: src/7task.c lib/eng_runner.o
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 		
 
@@ -24,16 +24,20 @@ lib/log.o:
 	@cp $(UTIL_PATH)/log.o lib/
 
 lib/test.o:
-	cd $(UTIL_PATH) && $(MAKE) test
+	cd $(UTIL_PATH) && $(MAKE) test.o
 	@cp $(UTIL_PATH)/test.o lib/
 
 lib/error.o:
-	cd $(UTIL_PATH) && $(MAKE) error
+	cd $(UTIL_PATH) && $(MAKE) error.o
 	@cp $(UTIL_PATH)/error.o lib/
 
 lib/common.o:
-	cd $(UTIL_PATH) && $(MAKE) error
+	cd $(UTIL_PATH) && $(MAKE) common.o
 	@cp $(UTIL_PATH)/common.o lib/
+
+lib/eng_runner.o:
+	cd $(UTIL_PATH) && $(MAKE) eng_runner.o
+	@cp $(UTIL_PATH)/lib/eng_runner.o lib/
 
 .PHONY: clean cleanlog cleanall no_targets__ list
 clean:
