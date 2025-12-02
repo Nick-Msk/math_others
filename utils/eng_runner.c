@@ -27,4 +27,10 @@ int                             eng_check_int2dim_interval(struct eng_int_interv
     return total;
 }
 
-
+int                             fautoprint(FILE *f, const struct eng_int_interval v){
+	int cnt = 0;
+	// use my bool.h instead of standard
+	fprintf(f, "fromX=%d, toX=%d, fromY=%d, toY=%d, stopRun=%d, print=%d, target=%p\n",
+			v.fromX, v.toX, v.fromY, v.toY, v.stopRun, v.print_flag, v.target);
+	return cnt;
+}
