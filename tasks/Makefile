@@ -15,6 +15,8 @@ LDLIBS=
 7task: src/7task.c lib/eng_runner.o
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 		
+test1: src/test1.c
+		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
 UTIL_PATH = ../utils
 
