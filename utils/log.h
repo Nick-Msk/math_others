@@ -295,9 +295,9 @@ log_numbers(LogAction            act,
 	loginit(__FILE__".log", false, 0, (fmt), ##__VA_ARGS__)
 
 #define logclose(fmt, ...) \
-	{ int _LG_INIT = logret(0, fmt, ##__VA_ARGS__); \
+	({ int _LG_INIT = logret(0, fmt, ##__VA_ARGS__); \
       log_close(); \
-	  _LG_INIT; }
+	  _LG_INIT; })
 
 #define	logfile								(log_file())			// wrapper for log_file()
 #define logoffset							(log_offset())		// wrapper for log_offset()
