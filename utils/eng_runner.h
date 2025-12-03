@@ -21,9 +21,9 @@ int                             eng_int_2dim(struct eng_int_interval rt, long va
 
 int                             eng_check_int2dim_interval(struct eng_int_interval rt, long val_from, long val_to);
 
-int								eng_fautoprint(FILE *f, const struct eng_int_interval v);
+int								eng_fautoprint(FILE *f, struct eng_int_interval v);
 
-static inline int				eng_autoprint(const struct eng_int_interval v){
+static inline int				eng_autoprint(struct eng_int_interval v){
 	return eng_fautoprint(stdout, v);
 }
 

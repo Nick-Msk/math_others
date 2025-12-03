@@ -33,7 +33,7 @@ int                             eng_check_int2dim_interval(struct eng_int_interv
     return logret(total, "%d", total);
 }
 
-int                             eng_fautoprint(FILE *f, const struct eng_int_interval v){
+int                             eng_fautoprint(FILE *f, struct eng_int_interval v){
 	int cnt = 0;
 	// use my bool.h instead of standard
 	fprintf(f, "%*cfromX=%d, toX=%d, fromY=%d, toY=%d, stopRun=%d, printFlag=%d, modLog=%d target=%p\n",
