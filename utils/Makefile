@@ -19,10 +19,11 @@ error.o: error.c log.o common.o
 	$(CC) $(CFLAGS)  $^ -c
 
 log: log.c test.o error.o
-	$(CC) $(CFLAGS) -DLOGTESTING $^ -o $@_test
+	$(CC) $(CFLAGS) -DLOGTESTING $^ -o test/$@_test
 
 log.o:	log.c
 	$(CC) $(CFLAGS) $^ -c
+	@mv $@ lib/
 
 common.o: common.c
 	$(CC) $(CFLAGS) $^ -c
@@ -37,7 +38,7 @@ compl_alg.o: compl_alg.c
 
 eng_runner.o: eng_runner.c
 	$(CC) $(CFLAGS) $^ -c
-	mv $@ lib/
+	@mv $@ lib/
 
 test: test.c error.o log.o
 	$(CC) $(CFLAGS) -DTESTTESTING $^ -o $@_test
