@@ -12,9 +12,12 @@ LDLIBS=
 6task: src/6task.c
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
-7task: src/7task.c lib/eng_runner.o
+7task: src/7task.c lib/eng_runner.o lib/log.o
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
-		
+	
+8task: src/8task.c lib/eng_runner.o lib/log.o
+		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
+
 test1: src/test1.c
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
@@ -23,7 +26,7 @@ UTIL_PATH = ../utils
 # libs from utils
 lib/log.o:
 	cd $(UTIL_PATH) && $(MAKE) log.o
-	@cp $(UTIL_PATH)/log.o lib/
+	@cp $(UTIL_PATH)/lib/log.o lib/
 
 lib/test.o:
 	cd $(UTIL_PATH) && $(MAKE) test.o

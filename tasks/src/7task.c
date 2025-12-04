@@ -4,6 +4,7 @@
 
 #include "check.h"
 #include "eng_runner.h"
+#include "log.h"
 
 static  		bool target_f(int x, int y, long checked_val){
 	long res = (long) x * x * x * y - (long) y * y * y * x;
@@ -12,6 +13,8 @@ static  		bool target_f(int x, int y, long checked_val){
 
 
 int			main(int argc, const char *argv[]){
+	loginit("log/7task.log", false, 0, "Start");
+
 	if (!check_arg(3, "Usage: %s from to [min value (2023) - max value]\n", *argv))
         return 1;
 
@@ -21,6 +24,9 @@ int			main(int argc, const char *argv[]){
 	ru1.target = target_f;
 	ru1.printFlag = true;
 	ru1.stopRun = false;
+	ru1.modLog = 10000;
+
+	eng_fautoprint(logfile, ru1);
 
 	int	val_curr = 2023;	// default as per task
 	int	val_to = val_curr;
@@ -42,6 +48,7 @@ int			main(int argc, const char *argv[]){
 		printf("Not found for that interval...\n");
 
 
-	return 0;
+	return logclose("...");
+	//return 0;
 }
 
