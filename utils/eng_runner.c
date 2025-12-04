@@ -9,9 +9,8 @@ int                             eng_int_2dim(struct eng_int_interval rt, long va
     // iterator need to be here
     for (int x = rt.fromX; x <= rt.toX; x++)
     	for (int y = rt.fromY; y <= rt.toY; y++){
-			if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0){
+			if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
 				logsimple("cnt=%lu", cnt);
-			}
         	if (rt.target(x, y, val)){
             	if (rt.printFlag)
                 	printf("Target function(%d, %d) is true for %ld)\n", x, y, val);
