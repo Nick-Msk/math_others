@@ -4,7 +4,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-typedef bool    (*f_int2dim)(int, int, long);
+typedef bool    (*tf_int2dim)(int, int, long);
+typedef bool	(*tf_int1dim)(int, long);
 
 struct eng_int_interval {
 	int			fromX;	// for now only 2 dims are supported
@@ -14,7 +15,8 @@ struct eng_int_interval {
 	bool 		stopRun;
 	bool		printFlag;
 	int			modLog;		// for printing logs cnt % modLog == 0
-	f_int2dim	target;
+	tf_int2dim	f_int_2dim;
+	tf_int1dim	f_int_1dim;
 };
 
 int                             eng_int_2dim(struct eng_int_interval rt, long val);
