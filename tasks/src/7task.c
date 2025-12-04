@@ -13,10 +13,11 @@ static  		bool target_f(int x, int y, long checked_val){
 
 
 int			main(int argc, const char *argv[]){
-	loginit("log/7task.log", false, 0, "Start");
 
 	if (!check_arg(3, "Usage: %s from to [min value (2023) - max value]\n", *argv))
         return 1;
+
+	loginit("log/7task.log", false, 0, "Start");
 
 	struct eng_int_interval ru1;
 	ru1.fromX = ru1.fromY = atoi(argv[1]);
