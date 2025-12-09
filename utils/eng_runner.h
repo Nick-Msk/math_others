@@ -24,13 +24,16 @@ struct eng_int_interval {
 		tf_int2dim		f_int_2dim;
 		tf_int2dim_bool	f_int_2dim_bool;
 		tf_int1dim		f_int_1dim;
-		tf_int1dim_bool	f_int_1_bool;
-	}
+		tf_int1dim_bool	f_int_1dim_bool;
+	};
 };
 
-int								eng_int_1dim_bool(struct eng_int_interval rt);
+int								eng_int_1dim(struct eng_int_interval rt);
 
-int                             eng_int_2dim(struct eng_int_interval rt, long val);
+int                             eng_int_2dim(struct eng_int_interval rt);
+
+// TODO:
+int                             eng_check_int1dim_interval(struct eng_int_interval rt, long val_from, long val_to);
 
 int                             eng_check_int2dim_interval(struct eng_int_interval rt, long val_from, long val_to);
 

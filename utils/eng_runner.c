@@ -4,8 +4,7 @@
 #include "log.h"
 
 // for 1 dim int
-int								eng_int_1dim(struct eng_int_interval){
-	// TODO:
+int								eng_int_1dim(struct eng_int_interval rt){
 	int						total = 0;
 	static unsigned long	cnt = 0;
 
@@ -13,12 +12,13 @@ int								eng_int_1dim(struct eng_int_interval){
     for (int x = rt.fromX; x <= rt.toX; x++){
 		if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
 			logsimple("cnt=%lu", cnt);
-        if (rt.targetValueFlag && rt.f_int_1dim(x, rt.targetValue) ||
-			!rt.targetValueFlag && rt.f_int_1dim_bool(x)
-				)
+        if (
+			(rt.targetValueFlag && rt.f_int_1dim(x, rt.targetValue)) ||
+			(!rt.targetValueFlag && rt.f_int_1dim_bool(x))
+		)
 		{
             if (rt.printFlag)
-                printf("Target function(%d, %d) is true", x, y);
+                printf("Target function(%d) is true", x);
 			if (rt.targetValueFlag)
 				printf("for %ld)\n", rt.targetValue);
 			else
@@ -41,9 +41,10 @@ int                             eng_int_2dim(struct eng_int_interval rt){
     	for (int y = rt.fromY; y <= rt.toY; y++){
 			if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
 				logsimple("cnt=%lu", cnt);
-        	if (rt.targetValueFlag && rt.f_int_2dim(x, y, rt.targetValue) ||
-					!rt.targetValueFlag && rt.f_int_2dim_bool(x, y)
-				)
+        	if (
+				(rt.targetValueFlag && rt.f_int_2dim(x, y, rt.targetValue)) ||
+				(!rt.targetValueFlag && rt.f_int_2dim_bool(x, y))
+			)
 			{
             	if (rt.printFlag)
                 	printf("Target function(%d, %d) is true", x, y);
