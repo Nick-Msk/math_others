@@ -18,9 +18,9 @@ int								eng_int_1dim(struct eng_int_interval rt){
 		)
 		{
             if (rt.printFlag)
-                printf("Target function(%d) is true", x);
+                printf("Target function(%d) is true ", x);
 			if (rt.targetValueFlag)
-				printf("for %ld)\n", rt.targetValue);
+				printf("(for %ld)\n", rt.targetValue);
 			else
 				printf("\n");
 			if (rt.stopRun)
