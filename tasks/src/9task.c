@@ -11,7 +11,10 @@
 
 // n + 9 / n + 6
 static                  bool target_int_1dim_f(int n){
-    return (n + 9) % (n + 6) == 0;
+	if (n == -6)
+		return false;
+	else
+    	return (n + 9) % (n + 6) == 0;
 }
 
 int                     main(int argc, const char *argv[]){
