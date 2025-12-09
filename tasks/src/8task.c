@@ -18,7 +18,7 @@ static                  bool target_int_1dim_f(int x, int cnt_low, int cnt_high)
 		}
 		long res2 = 0;
 		for (int i = 0; i < cnt_high; i++){
-	  		res1 += (long) x * x;
+	  		res2 += (long) x * x;
 			x++;
 		}
         return res1 == res2;
@@ -35,7 +35,7 @@ int						custom_int_1dim(struct eng_int_interval ru);
 int                     main(int argc, const char *argv[]){
     loginit("log/7task.log", false, 0, "Start");
 
-    if (!check_arg(3, "Usage: %s from to [min value (2023) - max value]\n", *argv)){
+    if (!check_arg(3, "Usage: %s 'from' 'to'\n", *argv)){
     	return 1;
 	}
 
@@ -44,7 +44,7 @@ int                     main(int argc, const char *argv[]){
 	ru1.toX = atoi(argv[2]);
 	ru1.stopRun = false;
 	ru1.printFlag = true;	// TODO: make a constructor!! to fill that stuff
-	ru1.modLog = 0;	// don't print logs
+	ru1.modLog = 100;	// don't print logs
 	ru1.f_int_1dim = wrapper_int_1dim;
 
 	printf("Check x2 + (x+1)2 + (x+2)2 vs (x+4)2 + (x+5)2 for x in [%d - %d]\n", ru1.fromX, ru1.toX);
