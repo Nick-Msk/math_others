@@ -13,13 +13,17 @@
 
 struct op_sym{
 	int		sz;
-	char 	sym[OP_SYM_SZ + 1];
-	char	op[OP_SYM_SZ];
+	char 	sym[OP_SYM_SZ + 1]; // for final '\0'
+	char	op[OP_SYM_SZ + 1];	// for final '\0'
 };
+
+// util
+int				op_sym_flog(FILE *f, const struct op_sym *s);
+int				op_sym_strinit(struct op_sym *s, const char *str);
 
 bool			gen_strings(char *orig_buf, int orig_cnt, char *buf, int cnt, int cnt_oper, int dec_value);
 
-int				calc_string(const op_sym *s, int elem);
+int				calc_string(const struct op_sym *s);
 
 int				main(int argc, const char *argv[]){
 	loginit("log/91task.log", false, 0, "Start");
@@ -40,55 +44,53 @@ int				main(int argc, const char *argv[]){
 	}
 
 	// main part
-	const int BUF_CNT = 9;
-	char buf[BUF_CNT * 2 + 1];
 	int found_cnt = 0;
+	struct op_sym buf;	
 
-	// setup buffer
-	buf[BUF_CNT * 2 + 1] = '\0';
-	for (int i = 0; i < BUF_CNT; i++){
-		buf[2 *i] = ' '; 
-		buf[2 * i + 1] = i + 1 + '0';
-		//printf("i=%d, [%c][%c]\n", i, buf[i], buf[i + 1]);
-	}
-	printf("[%s]\n", buf);
-
+	//op_sym_strinit(&buf,  "-123+45-67+89");
+	//op_sym_flog(stdout, &buf);
+	
+	int sum = calc_string(&buf);
+   	printf("TEST sum = %d\n", sum);	
+	/*
 	if ((found_cnt = gen_strings(buf, BUF_CNT, buf, BUF_CNT, cnt_oper, des_value)) > 0)
 		printf("%d was found\n", found_cnt);
 	else
 		printf("Not found...\n");
+	*/
 
 	logclose("...");
 	return 0;
 }
 
-int				calc_string(const op_sym *s, int elem){
-	logenter("%s:[%d]", s, elem);
+int				calc_string(const struct op_sym *s){
+	logenter("Elem %d", s->sz);
+	op_sym_flog(logfile, s);
 	
 	int sum = 0, current = 0;
-	char op = ' '; // + or -
-	/*for (int i = 0; i < elem; i++){
-		switch (s[2 * i]){
-			case '+': case '-':
-				// calculate last operation (if any)
+	char op = '+'; // + or -
+	
+	for (int i = 0; i < s->sz; i++){
+		char c = s->op[i];
+		logsimple("c=[%c], i=%d op=%c sum=%d curr=%d sym=%c", c, i, op, sum, current, s->sym[i]);
+		switch(c){
+			case '+':
+			case '-':
+				// calculate previous
 				if (op == '+')
 					sum += current;
-				else if (op == '-')
+			   	else if (op == '-')
 					sum -= current;
-				op = s[i];
-				current = 0;
-			break;
-			case ' ':
-				current = current * 10 + s[2 * i + 1] - '0';	// use type.h? 
+				current = 0; // reset 	
+				op = c;	// for the next or last
+			//break;
+			default:
+				current = current * 10 + (s->sym[i] - '0');
 			break;
 		}
 	}
-	*/
-	for (int i = 0; i < elem; i++){
-		switch(s[2 * i]
-	}
-	
-	if (op == '+' || op == ' ')
+	// last
+	if (op == '+')
 		sum += current;
 	else if (op == '-')
 		sum -= current;
@@ -96,8 +98,38 @@ int				calc_string(const op_sym *s, int elem){
 	return logret(sum, "%d", sum);
 }
 
+int				op_sym_flog(FILE *f, const struct op_sym* s){
+	int cnt = 0;
+	for (int i = 0; i < OP_SYM_SZ; i++){
+		fputc(s->op[i], f);
+		fputc(s->sym[i], f);
+		cnt += 2;
+	}
+	fputc('\n', f);
+	return ++cnt;
+}
+
+int				op_sym_strinit(struct op_sym *s, const char *str){
+	int i = 0, pos = 0;
+	while (pos < OP_SYM_SZ && str[i] != '\0'){
+		char c = str[i];
+		if (c == '+' || c == '-'){
+			logsimple("in+-: pos=%d i=%d", pos, i); 
+			s->op[pos] = c;
+			i++;
+		} else {
+			s->sym[pos] = c;
+			i++;
+			pos++;
+		}
+	}
+	logsimple("pos=%d i=%d", pos, i);
+	s->sym[pos] = s->op[pos] = '\0';
+	return s->sz = pos;
+}
 // TODO: gen_strings via recursion 
 
+/*
 bool			gen_strings(char *orig_buf, int orig_cnt, char *buf, int cnt, int cnt_oper, int des_value){
 	logenter("buf [%s], cnt [%d], cnt_oper [%d]", buf, cnt, cnt_oper);	
 	int res;
@@ -118,4 +150,4 @@ bool			gen_strings(char *orig_buf, int orig_cnt, char *buf, int cnt, int cnt_ope
 	}
 	return logret(false, "...");
 }
-
+*/
