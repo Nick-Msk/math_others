@@ -149,13 +149,15 @@ int				gen_strings(struct op_sym *buf, int cnt_oper, int value){
 	if (cnt_oper > 0 && buf->pos < buf->sz){	// if we have free operation and free symbols are remains
 		// check no op
 		struct op_sym tmp = *buf;
-		tmp.op[tmp.pos] = ' ';
+		tmp.op[tmp.pos] = '+';
 		tmp.pos++;
-		res += gen_strings(&tmp, cnt_oper, value);
-	
+
+		if (buf->pos > 0)	// skip first +
+			res += gen_strings(&tmp, cnt_oper - 1, value);
+		
 		// check +
-		tmp.op[tmp.pos -1] = '+';
-		res += gen_strings(&tmp, cnt_oper - 1, value);
+		tmp.op[tmp.pos - 1] = ' ';
+		res += gen_strings(&tmp, cnt_oper, value);
 		
 		// check -
 		tmp.op[tmp.pos - 1] = '-';	
