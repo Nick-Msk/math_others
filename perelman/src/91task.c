@@ -13,6 +13,7 @@
 
 struct op_sym{
 	int		sz;
+	int		pos;
 	char 	sym[OP_SYM_SZ + 1]; // for final '\0'
 	char	op[OP_SYM_SZ + 1];	// for final '\0'
 };
@@ -21,7 +22,8 @@ struct op_sym{
 int				op_sym_flog(FILE *f, const struct op_sym *s);
 int				op_sym_strinit(struct op_sym *s, const char *str);
 
-bool			gen_strings(char *orig_buf, int orig_cnt, char *buf, int cnt, int cnt_oper, int dec_value);
+//bool			gen_strings(char *orig_buf, int orig_cnt, char *buf, int cnt, int cnt_oper, int dec_value);
+int				gen_strings(struct op_sym *buf, int cnt_oper, int value);
 
 int				calc_string(const struct op_sym *s);
 
@@ -47,17 +49,18 @@ int				main(int argc, const char *argv[]){
 	int found_cnt = 0;
 	struct op_sym buf;	
 
-	//op_sym_strinit(&buf,  "-123+45-67+89");
-	//op_sym_flog(stdout, &buf);
+	op_sym_strinit(&buf,  "123456789");
+	op_sym_flog(stdout, &buf);
 	
-	int sum = calc_string(&buf);
-   	printf("TEST sum = %d\n", sum);	
-	/*
-	if ((found_cnt = gen_strings(buf, BUF_CNT, buf, BUF_CNT, cnt_oper, des_value)) > 0)
+	//int sum = calc_string(&buf);
+   	//printf("TEST sum = %d\n", sum);	
+	
+
+	if ((found_cnt = gen_strings(&buf, cnt_oper, des_value)) > 0)
 		printf("%d was found\n", found_cnt);
 	else
 		printf("Not found...\n");
-	*/
+	
 
 	logclose("...");
 	return 0;
@@ -101,7 +104,8 @@ int				calc_string(const struct op_sym *s){
 int				op_sym_flog(FILE *f, const struct op_sym* s){
 	int cnt = 0;
 	for (int i = 0; i < OP_SYM_SZ; i++){
-		fputc(s->op[i], f);
+		if (s->op[i] != ' ')
+			fputc(s->op[i], f);
 		fputc(s->sym[i], f);
 		cnt += 2;
 	}
@@ -118,6 +122,7 @@ int				op_sym_strinit(struct op_sym *s, const char *str){
 			s->op[pos] = c;
 			i++;
 		} else {
+			s->op[pos] = ' ';
 			s->sym[pos] = c;
 			i++;
 			pos++;
@@ -125,8 +130,41 @@ int				op_sym_strinit(struct op_sym *s, const char *str){
 	}
 	logsimple("pos=%d i=%d", pos, i);
 	s->sym[pos] = s->op[pos] = '\0';
+	s->pos = 0;	// for gen_strings
 	return s->sz = pos;
 }
+
+
+int				gen_strings(struct op_sym *buf, int cnt_oper, int value){
+	logenter("cnt_oper %d, value %d, pos=%d sz=%d", cnt_oper, value, buf->pos, buf->sz);
+	int res = 0;
+
+	// check current
+	if (calc_string(buf) == value){
+		//printf("FOUND: with cnt=%d pos=%d\n", cnt_oper, buf->pos);
+		printf("FOUND: ");
+		op_sym_flog(stdout, buf);
+		res++;
+	}
+	if (cnt_oper > 0 && buf->pos < buf->sz){	// if we have free operation and free symbols are remains
+		// check no op
+		struct op_sym tmp = *buf;
+		tmp.op[tmp.pos] = ' ';
+		tmp.pos++;
+		res += gen_strings(&tmp, cnt_oper, value);
+	
+		// check +
+		tmp.op[tmp.pos -1] = '+';
+		res += gen_strings(&tmp, cnt_oper - 1, value);
+		
+		// check -
+		tmp.op[tmp.pos - 1] = '-';	
+		res += gen_strings(&tmp, cnt_oper - 1, value);
+	} 
+
+	return logret(res, "res=%d", res);
+}
+
 // TODO: gen_strings via recursion 
 
 /*
