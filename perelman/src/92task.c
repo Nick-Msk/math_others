@@ -31,7 +31,7 @@ int                     main(int argc, const char *argv[]){
 
 	printf("Check x+y == x*y for float in  [%g - %g]\n", ru1.fromX, ru1.toX);
 	
-	int cnt = eng_flg_2dim(ru1);
+	int cnt = eng_flt_2dim(ru1);
 
     if (cnt > 0){
         printf("%d was/were found\n", cnt);
