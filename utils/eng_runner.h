@@ -3,6 +3,9 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <float.h>
+
+static const 	int ENG_FLT_COMRARE_DEF_VALUE = FLT_EPSILON * 10;	// to use in target fuction to compart, not sure about value
 
 // integer
 typedef bool    (*tf_int2dim)(int, int, long);
@@ -41,8 +44,10 @@ struct eng_int_interval {
 struct eng_flt_interval {
 	double		fromX;	// for now only 2 dims are supported
 	double		toX;
+	double		stepX;	// add initStepX ? 
 	double		fromY;
 	double		toY;
+	double		stepY;	// probably initStepY
 	bool		targetValueFlag;	// TODO: put all the flags into 1 var via | op
 	double		targetValue;	// if NOT bool function
 	bool 		stopRun;
@@ -56,12 +61,18 @@ struct eng_flt_interval {
 	};
 };
 
-// runners
+// runners (just true/false or == targetValue)
 // inteter
 int								eng_int_1dim(struct eng_int_interval rt);
 
 int                             eng_int_2dim(struct eng_int_interval rt);
 
+// float
+int								eng_flt_1dim(struct eng_flt_interval rt);
+
+int								eng_flt_2dim(struct eng_flt_interval rt);
+
+// checkers (for the range of values)
 // TODO:
 int                             eng_check_int1dim_interval(struct eng_int_interval rt, long val_from, long val_to);
 

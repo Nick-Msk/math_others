@@ -61,6 +61,43 @@ int                             eng_int_2dim(struct eng_int_interval rt){
     return total;
 }
 
+
+int                             eng_flt_1dim(struct eng_flt_interval rt){
+	int						total = 0;
+	static unsigned long	cnt = 0;
+
+	// 1 dim iterator
+	for (double x = rt.fromX; x <= rt.toX; x += rt.stepX){
+		if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
+			logsimple("cnt=%lu", cnt);
+		
+        if (
+			(rt.targetValueFlag && rt.f_flt_1dim(x, rt.targetValue)) ||
+			(!rt.targetValueFlag && rt.f_flt_1dim_bool(x))
+			)
+			{
+            	if (rt.printFlag)
+                	printf("Target function(%g) is true", x);
+				if (rt.targetValueFlag)
+					printf("for %g)\n", rt.targetValue);
+				else
+					printf("\n");
+                if (rt.stopRun)
+                   	return 1;
+                else
+                    total++;
+            }
+	}
+
+	return total;
+}
+
+int                             eng_flt_2dim(struct eng_flt_interval rt){
+	int						total = 0;
+	static unsigned long	cnt = 0;
+	return total;
+}
+
 int                             eng_check_int2dim_interval(struct eng_int_interval rt, long val_from, long val_to){
 	logenter("from %ld, to %ld", val_from, val_to);
 	eng_fautoprint(logfile, rt);
