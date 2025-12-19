@@ -62,12 +62,17 @@ int                             eng_int_2dim(struct eng_int_interval rt){
 }
 
 
+// INTERVAL version, TODO: rework to normal version with decreasing stepX when neccessary
 int                             eng_flt_1dim(struct eng_flt_interval rt){
 	int						total = 0;
 	static unsigned long	cnt = 0;
+	bool					start = false;	//true when interval is started
+	bool					stop = false;	//true when interval is ended
+	bool					in = false;
 
 	// 1 dim iterator
 	for (double x = rt.fromX; x <= rt.toX; x += rt.stepX){
+		// just regular logging
 		if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
 			logsimple("cnt=%lu", cnt);
 		
@@ -76,19 +81,37 @@ int                             eng_flt_1dim(struct eng_flt_interval rt){
 			(!rt.targetValueFlag && rt.f_flt_1dim_bool(x))
 			)
 			{
-            	if (rt.printFlag)
-                	printf("Target function(%g) is true", x);
+				if (!in)
+					in = true, start = true;	// start interval	
+			}
+        else 	// run is failed
+		    if (in)
+				in = false, stop = true;
+
+		if (start){
+			start = false;
+	        if (rt.stopRun)
+               	return 1;
+			else
+				total++;
+			// 
+	        if (rt.printFlag){
+    	       	printf("Func is true");
 				if (rt.targetValueFlag)
-					printf("for %g)\n", rt.targetValue);
-				else
-					printf("\n");
-                if (rt.stopRun)
-                   	return 1;
-                else
-                    total++;
-            }
+					printf(" for %g\n", rt.targetValue);
+				printf("[%g - \n", x);
+			}
+			start = false;	// 1 time per interval
+		}
+		if (stop){
+			stop = false;
+			if (rt.printFlag)
+				printf(" %g]\n", x - rt.stepX);	// when stepX is constant
+		}
 	}
 
+	if (in && rt.printFlag)
+		printf(" AND MORE]\n");
 	return total;
 }
 
