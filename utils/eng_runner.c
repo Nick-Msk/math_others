@@ -74,7 +74,7 @@ int                             eng_flt_1dim(struct eng_flt_interval rt){
 	for (double x = rt.fromX; x <= rt.toX; x += rt.stepX){
 		// just regular logging
 		if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
-			logsimple("cnt=%lu", cnt);
+			logsimple("cnt=%lu x=%g interval=%d", cnt - 1, x, in);
 		
         if (
 			(rt.targetValueFlag && rt.f_flt_1dim(x, rt.targetValue)) ||
@@ -118,6 +118,35 @@ int                             eng_flt_1dim(struct eng_flt_interval rt){
 int                             eng_flt_2dim(struct eng_flt_interval rt){
 	int						total = 0;
 	static unsigned long	cnt = 0;
+
+	// 2 dim iterator
+	for (double x = rt.fromX; x <= rt.toX; x += rt.stepX)
+		for (double y = rt.fromY; y < rt.toY; y += rt.stepY)
+			{
+				// just regular logging
+				if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
+					logsimple("cnt=%lu, x=%g y=%g", cnt - 1, x, y);
+				
+				if (
+					(rt.targetValueFlag && rt.f_flt_2dim(x, y, rt.targetValue)) ||
+					(!rt.targetValueFlag && rt.f_flt_2dim_bool(x, y))
+					)
+					{
+						if (rt.printFlag){
+							printf("Func is true");
+	
+							if (rt.targetValueFlag)
+								printf(" for %g", rt.targetValue);
+							printf(": x=%g y=%g\n", x, y);
+						}
+
+						if (rt.stopRun)
+							return 1;
+						else
+							total++;
+					}
+			}
+
 	return total;
 }
 
