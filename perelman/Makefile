@@ -16,6 +16,9 @@ all:
 92task: src/92task.c lib/log.o lib/eng_runner.o
 		$(CC) $(CFLAGS)  $^ -o out/$@
 
+93task: src/93task.c lib/log.o lib/eng_runner.o
+		$(CC) $(CFLAGS)  $^ -o out/$@
+
 #  TODO: add compl+alg
 UTIL_PATH = ../utils
 
