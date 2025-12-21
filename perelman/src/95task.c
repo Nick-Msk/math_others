@@ -30,42 +30,28 @@ int				calc_string(const struct op_sym *s);
 int				main(int argc, const char *argv[]){
 	loginit("log/95task.log", false, 0, "Start");
 
-	int cnt_oper = 5;		// as per task
-	int value = 100;	// as per task
-	const char *sample = "33333";							
+	int cnt_oper = 1;		// as per task
+	int value;	
+	const char *sample = "111111111";
 	struct op_sym buf;	
 	int found_cnt;
-	char sym = ' ';
+	char sym = '/';
 
-	if (argc > 1)
-		sample = argv[1];
+	if (!check_arg(2, "Usage: %s value (int)\n", *argv))
+        return 1;
 
-	if (argc > 2)
-		cnt_oper = atoi(argv[2]);
-	
-	if (argc > 3)
-		value = atoi(argv[3]);
+	value = atoi(argv[1]);
 
-	if (argc > 4)
-		sym = *argv[4];
-	
-	if (cnt_oper == 0){
-		op_sym_strinit(&buf, sample, cnt_oper);
-		op_sym_flog(stdout, &buf);
-		value = calc_string(&buf);
-		printf("Res = %d\n", value);	
-	}
-	else {
-		printf("Start with %d operations and check values %d for [%s] using op [%c]\n", cnt_oper, value, sample, sym);
+	printf("Start with %s and check value = %d with 1 op '/'\n'", sample, value);
 
-		// main part
-		op_sym_strinit(&buf,  sample, cnt_oper);
+	// main part
+	op_sym_strinit(&buf,  sample, cnt_oper);
 		
-		if ((found_cnt = gen_strings(&buf, cnt_oper, value, sym)) > 0)
-			printf("%d was found\n", found_cnt);
-		else
-		printf("Not found...\n");
-	}
+	if ((found_cnt = gen_strings(&buf, cnt_oper, value, sym)) > 0)
+		printf("%d was found\n", found_cnt);
+	else
+	printf("Not found...\n");
+	
 
 	logclose("...");
 	return 0;
@@ -226,9 +212,18 @@ int				gen_strings(struct op_sym *buf, int cnt_oper, int value, char sym){
 			}
 			// check /
 			if (sym == ' ' || sym == '/'){
-				tmp.op[tmp.pos - 1] = '/';	
+				tmp.op[tmp.pos - 1] = '/';
+				logsimple("HERE pos=%d!!!", buf->pos);	
+				op_sym_flog(logfile, &tmp);
 				res += gen_strings(&tmp, cnt_oper - 1, value, sym);
 			}
+		}
+
+		// check the numbers
+		for (int i = 1; i <= 9; i++){
+			tmp.op[tmp.pos - 1] = i + '0';
+			logsimple("in cyrcle! i = %d, pos = %d", i, tmp.pos);
+			res += gen_strings(&tmp, cnt_oper, value, sym);
 		}
 	} 
 
