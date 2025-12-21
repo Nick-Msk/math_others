@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #include "log.h"
 #include "check.h"
@@ -41,7 +42,7 @@ int				main(int argc, const char *argv[]){
 		cnt_oper = atoi(argv[2]);
 	
 	if (argc > 3)
-		value = atoi(argv[1]);
+		value = atoi(argv[3]);
 	
 	if (cnt_oper == 0){
 		op_sym_strinit(&buf, sample);
@@ -54,8 +55,6 @@ int				main(int argc, const char *argv[]){
 
 		// main part
 		op_sym_strinit(&buf,  sample);
-		// just to check
-		op_sym_flog(stdout, &buf);
 		
 		if ((found_cnt = gen_strings(&buf, cnt_oper, value)) > 0)
 			printf("%d was found\n", found_cnt);
@@ -67,6 +66,7 @@ int				main(int argc, const char *argv[]){
 	return 0;
 }
 
+// note - INT_MAX is marker for undefined value
 int				calc_string(const struct op_sym *s){
 	logenter("Elem %d", s->sz);
 	op_sym_flog(logfile, s);
@@ -92,7 +92,7 @@ int				calc_string(const struct op_sym *s){
 					summul = 1;
 					opmul = ' ';	// reset
 				}
-				logsimple("after +-: current=%d", current);
+				//logsimple("after +-: current=%d", current);
 				// calculate previous
 				if (op == '+')
 					sum += current;
@@ -106,11 +106,14 @@ int				calc_string(const struct op_sym *s){
 				if (opmul == '*' || opmul == '/'){
 					if (opmul == '*')
 						summul *= current;
-					else if (opmul == '/')
-						summul /= current;	// dev by zero could be
+					else  if (opmul == '/'){
+								if (current == 0 || summul % current > 0)	// not dididev
+									return INT_MAX;
+								summul /= current;	// dev by zero could be
+					}
 				} else 
 					summul = current;
-				logsimple("after */: summul=%d, curr=%d", summul, current);
+				//logsimple("after */: summul=%d, curr=%d", summul, current);
 				opmul = c;	// save mul/div operation
 				current = sym - '0';	// reset
 			break;
@@ -121,15 +124,18 @@ int				calc_string(const struct op_sym *s){
 		}
 	}
 	// last
-	logsimple("after : opmul=%c, summul=%d", opmul, summul);
+	//logsimple("after : opmul=%c, summul=%d", opmul, summul);
 	if (opmul == '*' || opmul == '/'){
 		if (opmul == '*')
 			summul *= current;
-		else if (opmul == '/')
+		else if (opmul == '/'){
+			if (current == 0 || summul % current > 0)	// not dididev
+				return INT_MAX;
 			summul /= current;
+		}
 		current = summul;
 	}
-	logsimple("after all: op=%c, sum=%d", op, sum);
+	//logsimple("after all: op=%c, sum=%d", op, sum);
 	if (op == '+')
 		sum += current;
 	else if (op == '-')
@@ -195,13 +201,23 @@ int				gen_strings(struct op_sym *buf, int cnt_oper, int value){
 		if (buf->pos > 0)	// skip first +
 			res += gen_strings(&tmp, cnt_oper - 1, value);
 		
-		// check +
+		// check no op
 		tmp.op[tmp.pos - 1] = ' ';
 		res += gen_strings(&tmp, cnt_oper, value);
 		
 		// check -
 		tmp.op[tmp.pos - 1] = '-';	
 		res += gen_strings(&tmp, cnt_oper - 1, value);
+
+		if (buf->pos > 0){
+			// check *
+			tmp.op[tmp.pos - 1] = '*';	
+			res += gen_strings(&tmp, cnt_oper - 1, value);
+
+			// check /
+			tmp.op[tmp.pos - 1] = '/';	
+			res += gen_strings(&tmp, cnt_oper - 1, value);
+		}
 	} 
 
 	return logret(res, "res=%d", res);
