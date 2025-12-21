@@ -15,13 +15,14 @@
 struct op_sym{
 	int		sz;
 	int		pos;
+	int 	oper_total;
 	char 	sym[OP_SYM_SZ + 1]; // for final '\0'
 	char	op[OP_SYM_SZ + 1];	// for final '\0'
 };
 
 // util
 int				op_sym_flog(FILE *f, const struct op_sym *s);
-int				op_sym_strinit(struct op_sym *s, const char *str);
+int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total);
 
 int				gen_strings(struct op_sym *buf, int cnt_oper, int value);
 int				calc_string(const struct op_sym *s);
@@ -45,7 +46,7 @@ int				main(int argc, const char *argv[]){
 		value = atoi(argv[3]);
 	
 	if (cnt_oper == 0){
-		op_sym_strinit(&buf, sample);
+		op_sym_strinit(&buf, sample, cnt_oper);
 		op_sym_flog(stdout, &buf);
 		value = calc_string(&buf);
 		printf("Res = %d\n", value);	
@@ -54,7 +55,7 @@ int				main(int argc, const char *argv[]){
 		printf("Start with %d operations and check values %d for [%s]\n", cnt_oper, value, sample);
 
 		// main part
-		op_sym_strinit(&buf,  sample);
+		op_sym_strinit(&buf,  sample, cnt_oper);
 		
 		if ((found_cnt = gen_strings(&buf, cnt_oper, value)) > 0)
 			printf("%d was found\n", found_cnt);
@@ -156,7 +157,7 @@ int				op_sym_flog(FILE *f, const struct op_sym* s){
 	return ++cnt;
 }
 
-int				op_sym_strinit(struct op_sym *s, const char *str){
+int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total){
 	int i = 0, pos = 0;
 	char op = ' ';
 	while (pos < OP_SYM_SZ && str[i] != '\0'){
@@ -177,6 +178,7 @@ int				op_sym_strinit(struct op_sym *s, const char *str){
 	s->sym[pos] = s->op[pos] = '\0';
 	logsimple("s [%s], oper [%s]", s->sym, s->op);
 	s->pos = 0;	// for gen_strings
+	s->oper_total = oper_total;
 	return s->sz = pos;
 }
 
@@ -188,7 +190,7 @@ int				gen_strings(struct op_sym *buf, int cnt_oper, int value){
 	// check current
 	if (calc_string(buf) == value){
 		//printf("FOUND: with cnt=%d pos=%d\n", cnt_oper, buf->pos);
-		printf("FOUND: ");
+		printf("FOUND(%d): ", buf->oper_total - cnt_oper);
 		op_sym_flog(stdout, buf);
 		res++;
 	}
