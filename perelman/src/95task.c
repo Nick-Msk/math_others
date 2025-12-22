@@ -164,9 +164,36 @@ int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total){
 	return s->sz = pos;
 }
 
+static int		check_div(struct op_sym *buf, int value){
+	int cnt = 0;
+	for (int i = 2; i < buf-> sz; i++){
+		buf->op[i] = '/';
+		buf->op[i - 1] = ' '; 	// reset prev
+		if (calc_string(buf) == value){
+			cnt++;
+			printf("FOUND: %d=", value);
+			op_sym_flog(stdout, buf);
+		}
+	}
+	return cnt;
+}
+
+static bool		change_elem(struct op_sym *buf, int elem1, int elem2){
+	if (elem1 >= 0 && elem1 < buf->sz && elem2 >= 0 && elem2 < buf->sz){
+		
+	}
+	else
+		fprintf(stderr, "Elements is out of range %d, %d - sz=%d\n", elem1, elem2, buf-sz);
+}
+
 static int		generate(struct op_sym *buf, int value){
 	int res = 0;
 	int syms[] = "123456789";
+
+	for (int i = 0; i <= buf->sz /* 9 */; i++){
+		check_div(buf, value);	// check / for all positions
+
+	}
 
 	buf->
 
