@@ -24,35 +24,27 @@ struct op_sym{
 int				op_sym_flog(FILE *f, const struct op_sym *s);
 int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total);
 
-int				gen_strings(struct op_sym *buf, int cnt_oper, int value, char sym);
+int				gen_sequnces(int value){
 int				calc_string(const struct op_sym *s);
 
 int				main(int argc, const char *argv[]){
 	loginit("log/95task.log", false, 0, "Start");
 
-	int cnt_oper = 1;		// as per task
 	int value;	
-	const char *sample = "111111111";
-	struct op_sym buf;	
 	int found_cnt;
-	char sym = '/';
 
 	if (!check_arg(2, "Usage: %s value (int)\n", *argv))
         return 1;
 
 	value = atoi(argv[1]);
 
-	printf("Start with %s and check value = %d with 1 op '/'\n'", sample, value);
+	printf("Check value = %d with 1 op '/'\n'", sample, value);
 
-	// main part
-	op_sym_strinit(&buf,  sample, cnt_oper);
-		
-	if ((found_cnt = gen_strings(&buf, cnt_oper, value, sym)) > 0)
+	if ((found_cnt = gen_sequnces(value)) > 0)
 		printf("%d was found\n", found_cnt);
 	else
-	printf("Not found...\n");
+		printf("Not found...\n");
 	
-
 	logclose("...");
 	return 0;
 }
@@ -172,7 +164,29 @@ int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total){
 	return s->sz = pos;
 }
 
+static int		generate(struct op_sym *buf, int value){
+	int res = 0;
+	int syms[] = "123456789";
 
+	buf->
+
+	return res;
+}
+
+// ONLY FOR 1 OPERATION Div (/), value is 2..9 as per task
+// wrapper for generate()
+int				gen_sequnces(int value){
+	logenter("Value %d", value);
+	
+	struct op_sym buf;
+	op_sym_strinit(&buf, "111111111", 1);
+	
+	int res = generate(&buf, value);
+
+	return logret(res, "res=%d", res);
+}
+
+/*
 int				gen_strings(struct op_sym *buf, int cnt_oper, int value, char sym){
 	logenter("cnt_oper %d, value %d, pos=%d sz=%d operations [%c]", cnt_oper, value, buf->pos, buf->sz, sym);
 	int res = 0;
@@ -228,4 +242,6 @@ int				gen_strings(struct op_sym *buf, int cnt_oper, int value, char sym){
 	} 
 
 	return logret(res, "res=%d", res);
-}
+} */
+
+
