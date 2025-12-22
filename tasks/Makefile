@@ -24,6 +24,9 @@ LDLIBS=
 10task: src/10task.c lib/eng_runner.o lib/log.o
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
+11task: src/11task.c lib/eng_runner.o lib/log.o
+		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
+
 test1: src/test1.c
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
