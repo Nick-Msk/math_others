@@ -61,8 +61,8 @@ static int				calc_string(const struct op_sym *s){
 	for (int i = 0; i < s->sz; i++){
 		char c = s->op[i];
 		char sym = s->sym[i];
-		logsimple("c=[%c], i=%d op=%c sum=%d curr=%d sym=%c opmul=%c summul=%d", 
-					c, i, op, sum, current, s->sym[i], opmul, summul);
+	//	logsimple("c=[%c], i=%d op=%c sum=%d curr=%d sym=%c opmul=%c summul=%d", 
+	//				c, i, op, sum, current, s->sym[i], opmul, summul);
 		switch(c){
 			case '+':
 			case '-':
@@ -91,7 +91,7 @@ static int				calc_string(const struct op_sym *s){
 						summul *= current;
 					else  if (opmul == '/'){
 								if (current == 0 || summul % current > 0)	// not dididev
-									return INT_MAX;
+									return logret(INT_MAX, "%d", INT_MAX);
 								summul /= current;	// dev by zero could be
 					}
 				} else 
@@ -102,7 +102,7 @@ static int				calc_string(const struct op_sym *s){
 			break;
 			default:
 				current = current * 10 + (sym - '0'); 
-				logsimple("no op: curr=%d", current);
+	//			logsimple("no op: curr=%d", current);
 			break;
 		}
 	}
@@ -112,8 +112,9 @@ static int				calc_string(const struct op_sym *s){
 		if (opmul == '*')
 			summul *= current;
 		else if (opmul == '/'){
-			if (current == 0 || summul % current > 0)	// not dididev
-				return INT_MAX;
+			if (current == 0 || summul % current > 0){	// not dididev
+				return logret(INT_MAX, "%d", INT_MAX);
+			}
 			summul /= current;
 		}
 		current = summul;
@@ -166,7 +167,7 @@ static int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total){
 
 static int		check_div(struct op_sym *buf, int value){
 	int cnt = 0, i;
-	for (i = 2; i < buf->sz; i++){
+	for (i = 1; i < buf->sz; i++){
 		buf->op[i] = '/';
 		buf->op[i - 1] = ' '; 	// reset prev
 		if (calc_string(buf) == value){
@@ -184,21 +185,26 @@ static bool		change_elem(struct op_sym *buf, int elem1, int elem2){
 		char tmp = buf->sym[elem1];
 		buf->sym[elem1] = buf->sym[elem2];
 		buf->sym[elem2] = tmp;
+		return true;
 	}
-	else
+	else {
 		fprintf(stderr, "Elements is out of range %d, %d - sz=%d\n", elem1, elem2, buf->sz);
+		return false;
+	}
 }
 
 static int		generate(struct op_sym *buf, int value){
+	op_sym_flog(logfile, buf);
 	int res = 0;
-	char syms[] = "123456789";
 
-	for (int i = 0; i <= buf->sz /* 9 */; i++){
-		check_div(buf, value);	// check / for all positions
-
-	}
 	// TODO:
-
+	for (int j = 0; j < buf->sz; j++){
+		for (int i = 1; i < buf->sz; i++){
+			change_elem(buf, i - 1, i);
+			op_sym_flog(logfile, buf);
+		//	res += check_div(buf, value);
+		}
+	}
 	return res;
 }
 
@@ -208,7 +214,7 @@ static int				gen_sequnces(int value){
 	logenter("Value %d", value);
 	
 	struct op_sym buf;
-	op_sym_strinit(&buf, "111111111", 1);
+	op_sym_strinit(&buf, "123456789", 1);
 	
 	int res = generate(&buf, value);
 
