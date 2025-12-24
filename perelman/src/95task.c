@@ -21,11 +21,11 @@ struct op_sym{
 };
 
 // util
-int				op_sym_flog(FILE *f, const struct op_sym *s);
-int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total);
+static int				op_sym_flog(FILE *f, const struct op_sym *s);
+static int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total);
 
-int				gen_sequnces(int value){
-int				calc_string(const struct op_sym *s);
+static int				gen_sequnces(int value);
+static int				calc_string(const struct op_sym *s);
 
 int				main(int argc, const char *argv[]){
 	loginit("log/95task.log", false, 0, "Start");
@@ -38,7 +38,7 @@ int				main(int argc, const char *argv[]){
 
 	value = atoi(argv[1]);
 
-	printf("Check value = %d with 1 op '/'\n'", sample, value);
+	printf("Check value = %d with 1 op '/'\n'", value);
 
 	if ((found_cnt = gen_sequnces(value)) > 0)
 		printf("%d was found\n", found_cnt);
@@ -50,7 +50,7 @@ int				main(int argc, const char *argv[]){
 }
 
 // note - INT_MAX is marker for undefined value
-int				calc_string(const struct op_sym *s){
+static int				calc_string(const struct op_sym *s){
 	logenter("Elem %d", s->sz);
 	op_sym_flog(logfile, s);
 	
@@ -127,7 +127,7 @@ int				calc_string(const struct op_sym *s){
 	return logret(sum, "%d", sum);
 }
 
-int				op_sym_flog(FILE *f, const struct op_sym* s){
+static int				op_sym_flog(FILE *f, const struct op_sym* s){
 	int cnt = 0;
 	for (int i = 0; i < OP_SYM_SZ && i < s->sz; i++){
 		if (s->op[i] != ' ')
@@ -139,7 +139,7 @@ int				op_sym_flog(FILE *f, const struct op_sym* s){
 	return ++cnt;
 }
 
-int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total){
+static int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total){
 	int i = 0, pos = 0;
 	char op = ' ';
 	while (pos < OP_SYM_SZ && str[i] != '\0'){
@@ -165,8 +165,8 @@ int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total){
 }
 
 static int		check_div(struct op_sym *buf, int value){
-	int cnt = 0;
-	for (int i = 2; i < buf-> sz; i++){
+	int cnt = 0, i;
+	for (i = 2; i < buf->sz; i++){
 		buf->op[i] = '/';
 		buf->op[i - 1] = ' '; 	// reset prev
 		if (calc_string(buf) == value){
@@ -175,34 +175,36 @@ static int		check_div(struct op_sym *buf, int value){
 			op_sym_flog(stdout, buf);
 		}
 	}
+	buf->op[i - 1] = ' '; // reset last
 	return cnt;
 }
 
 static bool		change_elem(struct op_sym *buf, int elem1, int elem2){
 	if (elem1 >= 0 && elem1 < buf->sz && elem2 >= 0 && elem2 < buf->sz){
-		
+		char tmp = buf->sym[elem1];
+		buf->sym[elem1] = buf->sym[elem2];
+		buf->sym[elem2] = tmp;
 	}
 	else
-		fprintf(stderr, "Elements is out of range %d, %d - sz=%d\n", elem1, elem2, buf-sz);
+		fprintf(stderr, "Elements is out of range %d, %d - sz=%d\n", elem1, elem2, buf->sz);
 }
 
 static int		generate(struct op_sym *buf, int value){
 	int res = 0;
-	int syms[] = "123456789";
+	char syms[] = "123456789";
 
 	for (int i = 0; i <= buf->sz /* 9 */; i++){
 		check_div(buf, value);	// check / for all positions
 
 	}
-
-	buf->
+	// TODO:
 
 	return res;
 }
 
 // ONLY FOR 1 OPERATION Div (/), value is 2..9 as per task
 // wrapper for generate()
-int				gen_sequnces(int value){
+static int				gen_sequnces(int value){
 	logenter("Value %d", value);
 	
 	struct op_sym buf;
