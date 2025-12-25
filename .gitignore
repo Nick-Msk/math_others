@@ -12,4 +12,5 @@ out/
 *_test
 *.res
 *.log
+res_log
 
