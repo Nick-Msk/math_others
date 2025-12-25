@@ -20,11 +20,13 @@ struct op_sym{
 	char	op[OP_SYM_SZ + 1];	// for final '\0'
 };
 
+static int				total_cnt_checked = 0;
+
 // util
 static int				op_sym_flog(FILE *f, const struct op_sym *s);
 static int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total);
 
-static int				gen_sequnces(int value);
+static int				gen_sequnces(int value, const char *str);
 static int				calc_string(const struct op_sym *s);
 
 int				main(int argc, const char *argv[]){
@@ -32,18 +34,24 @@ int				main(int argc, const char *argv[]){
 
 	int value;	
 	int found_cnt;
+	const char *pattern = "123456789";
 
 	if (!check_arg(2, "Usage: %s value (int)\n", *argv))
         return 1;
 
 	value = atoi(argv[1]);
 
-	printf("Check value = %d with 1 op '/'\n'", value);
+	if (argc > 2)
+		pattern = argv[2];
 
-	if ((found_cnt = gen_sequnces(value)) > 0)
+	printf("Check value = %d with 1 op '/' for patter [%s]\n'", value, pattern);
+
+	if ((found_cnt = gen_sequnces(value, pattern)) > 0)
 		printf("%d was found\n", found_cnt);
 	else
 		printf("Not found...\n");
+
+	printf("Total %d was checked\n", total_cnt_checked);
 	
 	logclose("...");
 	return 0;
@@ -51,8 +59,8 @@ int				main(int argc, const char *argv[]){
 
 // note - INT_MAX is marker for undefined value
 static int				calc_string(const struct op_sym *s){
-	logenter("Elem %d", s->sz);
-	op_sym_flog(logfile, s);
+//	logenter("Elem %d", s->sz);
+	//op_sym_flog(logfile, s);
 	
 	int sum = 0, summul = 1, current = 0;
 	char op = '+'; // for + -
@@ -91,7 +99,7 @@ static int				calc_string(const struct op_sym *s){
 						summul *= current;
 					else  if (opmul == '/'){
 								if (current == 0 || summul % current > 0)	// not dididev
-									return logret(INT_MAX, "%d", INT_MAX);
+									return INT_MAX;	//logret(INT_MAX, "%d", INT_MAX);
 								summul /= current;	// dev by zero could be
 					}
 				} else 
@@ -113,7 +121,7 @@ static int				calc_string(const struct op_sym *s){
 			summul *= current;
 		else if (opmul == '/'){
 			if (current == 0 || summul % current > 0){	// not dididev
-				return logret(INT_MAX, "%d", INT_MAX);
+				return INT_MAX;	//logret(INT_MAX, "%d", INT_MAX);
 			}
 			summul /= current;
 		}
@@ -125,7 +133,7 @@ static int				calc_string(const struct op_sym *s){
 	else if (op == '-')
 		sum -= current;
 
-	return logret(sum, "%d", sum);
+	return sum; // logret(sum, "%d", sum);
 }
 
 static int				op_sym_flog(FILE *f, const struct op_sym* s){
@@ -166,6 +174,8 @@ static int				op_sym_strinit(struct op_sym *s, const char *str, int oper_total){
 }
 
 static int		check_div(struct op_sym *buf, int value){
+	op_sym_flog(logfile, buf);
+	total_cnt_checked++;
 	int cnt = 0, i;
 	for (i = 1; i < buf->sz; i++){
 		buf->op[i] = '/';
@@ -180,6 +190,7 @@ static int		check_div(struct op_sym *buf, int value){
 	return cnt;
 }
 
+
 static bool		change_elem(struct op_sym *buf, int elem1, int elem2){
 	if (elem1 >= 0 && elem1 < buf->sz && elem2 >= 0 && elem2 < buf->sz){
 		char tmp = buf->sym[elem1];
@@ -193,90 +204,46 @@ static bool		change_elem(struct op_sym *buf, int elem1, int elem2){
 	}
 }
 
+// find from 0 to pos 
+static bool		op_sym_not_in(const struct op_sym *buf, char c){
+	for (int i = 0; i < buf->pos; i++)
+		if (buf->sym[i] == c)
+			return false;
+	return true;
+}		
+
 static int		generate(struct op_sym *buf, int value){
-	op_sym_flog(logfile, buf);
+	//logenter("pos =%d sz=%d", buf->pos, buf->sz);
+	//op_sym_flog(logfile, buf);
 	int res = 0;
 
-	// TODO:
-	for (int j = 0; j < buf->sz; j++){
-		for (int i = 1; i < buf->sz; i++){
-			change_elem(buf, i - 1, i);
-			op_sym_flog(logfile, buf);
-		//	res += check_div(buf, value);
+	if (buf->pos < buf->sz){
+		for (int j = 0; j < buf->sz; j++){
+			char c = j + 1 + '0';
+			if (op_sym_not_in(buf, c)){
+				buf->sym[buf->pos] = c;
+			//	logmsg("check %c in pos %d", c, buf->pos);
+				buf->pos++;
+				res += generate(buf, value);
+				buf->pos--;
+			}
 		}
-	}
-	return res;
+	} else 
+		res += check_div(buf, value);
+
+	return res;	// logret(res, "%d", res);
 }
 
 // ONLY FOR 1 OPERATION Div (/), value is 2..9 as per task
 // wrapper for generate()
-static int				gen_sequnces(int value){
+static int				gen_sequnces(int value, const char *str){
 	logenter("Value %d", value);
 	
 	struct op_sym buf;
-	op_sym_strinit(&buf, "123456789", 1);
+	op_sym_strinit(&buf, str, 1);
 	
 	int res = generate(&buf, value);
 
 	return logret(res, "res=%d", res);
 }
-
-/*
-int				gen_strings(struct op_sym *buf, int cnt_oper, int value, char sym){
-	logenter("cnt_oper %d, value %d, pos=%d sz=%d operations [%c]", cnt_oper, value, buf->pos, buf->sz, sym);
-	int res = 0;
-
-	// check current
-	if (calc_string(buf) == value){
-		//printf("FOUND: with cnt=%d pos=%d\n", cnt_oper, buf->pos);
-		printf("FOUND(%d): ", buf->oper_total - cnt_oper);
-		op_sym_flog(stdout, buf);
-		res++;
-	}
-	if (cnt_oper > 0 && buf->pos < buf->sz){	// if we have free operation and free symbols are remains
-		// check no op
-		struct op_sym tmp = *buf;
-		tmp.op[tmp.pos] = '+';
-		tmp.pos++;
-
-		if (buf->pos > 0)	// skip first +
-			if (sym == ' ' || sym == '+')
-				res += gen_strings(&tmp, cnt_oper - 1, value, sym);
-		
-		// check no op
-		tmp.op[tmp.pos - 1] = ' ';
-		res += gen_strings(&tmp, cnt_oper, value, sym);
-		
-		// check -
-		if (sym == ' ' || sym == '-'){
-			tmp.op[tmp.pos - 1] = '-';	
-			res += gen_strings(&tmp, cnt_oper - 1, value, sym);
-		}
-
-		if (buf->pos > 0){
-			// check *
-			if (sym == ' ' || sym == '*'){
-				tmp.op[tmp.pos - 1] = '*';	
-				res += gen_strings(&tmp, cnt_oper - 1, value, sym);
-			}
-			// check /
-			if (sym == ' ' || sym == '/'){
-				tmp.op[tmp.pos - 1] = '/';
-				logsimple("HERE pos=%d!!!", buf->pos);	
-				op_sym_flog(logfile, &tmp);
-				res += gen_strings(&tmp, cnt_oper - 1, value, sym);
-			}
-		}
-
-		// check the numbers
-		for (int i = 1; i <= 9; i++){
-			tmp.op[tmp.pos - 1] = i + '0';
-			logsimple("in cyrcle! i = %d, pos = %d", i, tmp.pos);
-			res += gen_strings(&tmp, cnt_oper, value, sym);
-		}
-	} 
-
-	return logret(res, "res=%d", res);
-} */
-
 
