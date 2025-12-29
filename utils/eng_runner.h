@@ -14,6 +14,9 @@ typedef bool	(*tf_int2dim_bool)(int, int);	//  no long here!
 typedef bool	(*tf_int1dim)(int, long);
 typedef bool	(*tf_int1dim_bool)(int);		// no long here!
 
+typedef bool    (*tf_int3dim)(int, int, int, long);
+typedef bool	(*tf_int3dim_bool)(int, int, int);	//  no long here!
+
 // float
 typedef bool	(*tf_flt2dim)(double, double, double);
 typedef bool	(*tf_flt2dim_bool)(double, double);
@@ -23,10 +26,13 @@ typedef bool	(*tf_flt1dim_bool)(double);
 
 // integer structure
 struct eng_int_interval {
+	int			useDim;	// TODO!!!!!! 1, 2, 3 for now
 	int			fromX;	// for now only 2 dims are supported
 	int			toX;
 	int			fromY;
 	int			toY;
+	int			fromZ;
+	int			toZ;
 	bool		targetValueFlag;	// TODO: put all the flags into 1 var via | op
 	long		targetValue;	// if NOT bool function
 	bool 		stopRun;
@@ -37,6 +43,8 @@ struct eng_int_interval {
 		tf_int2dim_bool	f_int_2dim_bool;
 		tf_int1dim		f_int_1dim;
 		tf_int1dim_bool	f_int_1dim_bool;
+		tf_int3dim		f_int_3dim;
+		tf_int3dim_bool	f_int_3dim_bool;
 	};
 };
 
@@ -66,6 +74,8 @@ struct eng_flt_interval {
 int								eng_int_1dim(struct eng_int_interval rt);
 
 int                             eng_int_2dim(struct eng_int_interval rt);
+
+int								eng_int_3dim(struct eng_int_interval rt);
 
 // float
 int								eng_flt_1dim(struct eng_flt_interval rt);

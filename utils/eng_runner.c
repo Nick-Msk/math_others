@@ -62,6 +62,36 @@ int                             eng_int_2dim(struct eng_int_interval rt){
 }
 
 
+int                             eng_int_3dim(struct eng_int_interval rt){
+	int             		total = 0;
+	static unsigned long	cnt = 0;
+
+    // iterator need to be here
+    for (int x = rt.fromX; x <= rt.toX; x++)
+    	for (int y = rt.fromY; y <= rt.toY; y++)
+			for (int z = rt.fromZ; z <= rt.toZ; z++){
+					if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
+						logsimple("cnt=%lu", cnt);
+					if (
+						(rt.targetValueFlag && rt.f_int_3dim(x, y, z, rt.targetValue)) ||
+						(!rt.targetValueFlag && rt.f_int_3dim_bool(x, y, z))
+					)
+					{
+						if (rt.printFlag)
+							printf("Target function(%d, %d, %d) is true", x, y, z);
+						if (rt.targetValueFlag)
+							printf("for %ld)\n", rt.targetValue);
+						else
+							printf("\n");
+						if (rt.stopRun)
+							return 1;
+						else
+							total++;
+            		}
+        	}
+    return total;
+}
+
 // INTERVAL version, TODO: rework to normal version with decreasing stepX when neccessary
 int                             eng_flt_1dim(struct eng_flt_interval rt){
 	int						total = 0;
@@ -165,8 +195,9 @@ int                             eng_fautoprint(FILE *f, struct eng_int_interval 
 	int cnt = 0;
 	// use my bool.h instead of standard for bool_str()
 	cnt += fprintf(f, 
-		"%*cfromX=%d, toX=%d, fromY=%d, toY=%d, isTargetValue=%d, stopRun=%d, printFlag=%d, modLog=%d f_int1dim=%p f_int2dim=%p\n",
-		logoffset, '|', v.fromX, v.toX, v.fromY, v.toY, v.targetValueFlag,	
+		"%*cfromX=%d, toX=%d, fromY=%d, toY=%d, fromZ=%d, toZ=%disTargetValue=%d, stopRun=%d, printFlag=%d, modLog=%d f_int1dim=%p f_int2dim=%p\n",
+		logoffset, '|', v.fromX, v.toX, v.fromY, v.toY, v.fromZ, v.toZ,
+		v.targetValueFlag,	
 		v.stopRun, v.printFlag, v.modLog, v.f_int_1dim, v.f_int_2dim);	// logoffset must return 0 if log isn't enabled
 	if (v.targetValueFlag)
 		cnt += fprintf(f, "%*c targetValue=%ld\n", logoffset, '|', v.targetValue);	
