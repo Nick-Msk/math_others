@@ -11,7 +11,10 @@
 
 // 1/x + 1/y + 1/z = 1
 static                  bool target_int_3dim_f(int x, int y, int z){
-    return x * y + y * z + x * z  == x * y * z;
+	if (x == 0 || y == 0 || z == 0)
+		return false;
+	else
+		return x * y + y * z + x * z  == x * y * z;
 }
 
 int                     main(int argc, const char *argv[]){
