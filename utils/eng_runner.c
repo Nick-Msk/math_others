@@ -9,7 +9,7 @@ int								eng_int_1dim(struct eng_int_interval rt){
 	static unsigned long	cnt = 0;
 
     // iterator need to be here
-    for (int x = rt.fromX; x <= rt.toX; x++){
+    for (int x = rt.fromX; x <= rt.toX; x += rt.stepX){
 		if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
 			logsimple("cnt=%lu", cnt);
         if (
@@ -37,8 +37,8 @@ int                             eng_int_2dim(struct eng_int_interval rt){
 	static unsigned long	cnt = 0;
 
     // iterator need to be here
-    for (int x = rt.fromX; x <= rt.toX; x++)
-    	for (int y = rt.fromY; y <= rt.toY; y++){
+    for (int x = rt.fromX; x <= rt.toX; x += rt.stepX)
+    	for (int y = rt.fromY; y <= rt.toY; y += rt.stepY){
 			if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
 				logsimple("cnt=%lu", cnt);
         	if (
@@ -67,9 +67,9 @@ int                             eng_int_3dim(struct eng_int_interval rt){
 	static unsigned long	cnt = 0;
 
     // iterator need to be here
-    for (int x = rt.fromX; x <= rt.toX; x++)
-    	for (int y = rt.fromY; y <= rt.toY; y++)
-			for (int z = rt.fromZ; z <= rt.toZ; z++){
+    for (int x = rt.fromX; x <= rt.toX; x += rt.stepX)
+    	for (int y = rt.fromY; y <= rt.toY; y += rt.stepY)
+			for (int z = rt.fromZ; z <= rt.toZ; z += rt.stepZ){
 					if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
 						logsimple("cnt=%lu", cnt);
 					if (
@@ -89,6 +89,39 @@ int                             eng_int_3dim(struct eng_int_interval rt){
 							total++;
             		}
         	}
+    return total;
+}
+
+int                             eng_int_4dim(struct eng_int_interval rt){
+	int             		total = 0;
+	static unsigned long	cnt = 0;
+
+    // iterator need to be here
+    for (int x = rt.fromX; x <= rt.toX; x += rt.stepX)
+    	for (int y = rt.fromY; y <= rt.toY; y += rt.stepZ)
+			for (int z = rt.fromZ; z <= rt.toZ; z += rt.stepZ)
+				for (int z1 = rt.fromZ1; z1 <= rt.toZ1; z1 += rt.stepZ1)
+				{
+							if (rt.modLog > 0 && rt.printFlag && cnt++ % rt.modLog == 0)
+								logsimple("cnt=%lu", cnt);
+							if (
+								(rt.targetValueFlag && rt.f_int_4dim(x, y, z, z1, rt.targetValue)) ||
+								(!rt.targetValueFlag && rt.f_int_4dim_bool(x, y, z, z1))
+							)
+							{
+								if (rt.printFlag)
+									printf("Target function(%d, %d, %d) is true", x, y, z);
+								if (rt.targetValueFlag)
+									printf("for %ld)\n", rt.targetValue);
+								else
+									printf("\n");
+								if (rt.stopRun)
+									return 1;
+								else
+									total++;
+							}
+				
+        		}
     return total;
 }
 
@@ -194,9 +227,14 @@ int                             eng_check_int2dim_interval(struct eng_int_interv
 int                             eng_fautoprint(FILE *f, struct eng_int_interval v){
 	int cnt = 0;
 	// use my bool.h instead of standard for bool_str()
-	cnt += fprintf(f, 
-		"%*cfromX=%d, toX=%d, fromY=%d, toY=%d, fromZ=%d, toZ=%disTargetValue=%d, stopRun=%d, printFlag=%d, modLog=%d f_int1dim=%p f_int2dim=%p\n",
-		logoffset, '|', v.fromX, v.toX, v.fromY, v.toY, v.fromZ, v.toZ,
+	cnt += fprintf(f, 	// TODO: refactor that stuff!!! using v.useDim 
+		"%*cfromX=%d, toX=%d, stepX=%d fromY=%d, toY=%d, stepY=%d, fromZ=%d, toZ=%d, stepZ=%d, fromZ1=%d, toZ1=%d, stepZ1=%d, \
+		isTargetValue=%d, stopRun=%d, printFlag=%d, modLog=%d f_int1dim=%p f_int2dim=%p\n",
+		logoffset, '|', 
+		v.fromX, v.toX, v.stepX, 
+		v.fromY, v.toY, v.stepY,
+		v.fromZ, v.toZ, v.stepZ, 
+		v.fromZ1, v.toZ1, v.stepZ1,
 		v.targetValueFlag,	
 		v.stopRun, v.printFlag, v.modLog, v.f_int_1dim, v.f_int_2dim);	// logoffset must return 0 if log isn't enabled
 	if (v.targetValueFlag)
