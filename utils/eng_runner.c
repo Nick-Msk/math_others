@@ -227,6 +227,30 @@ int                             eng_check_int2dim_interval(struct eng_int_interv
 int                             eng_fautoprint(FILE *f, struct eng_int_interval v){
 	int cnt = 0;
 	// use my bool.h instead of standard for bool_str()
+	
+	cnt += fprintf(f, "%*cINT DIM=%d, targetValueFlag=%s, stopRun=%s, printFlag=%s, modLog=%d\n",
+		f == logfile? logoffset : 0, '|',
+		v.useDim, bool_str(v.targetValueFlag), bool_str(v.stopRun), bool_str(v.printFlag), v.modLog);
+	
+	cnt += fprintf(f, "%*cfromX=%d, toX=%d, stepX=%d\n",
+		f == logfile? logoffset : 0, '|', v.fromX, v.toX, v.stepX);
+	
+	if (v.useDim > 1)
+		cnt += fprintf(f, "%*cfromY=%d, toY=%d, stepY=%d\n",
+			f == logfile? logoffset : 0, '|', v.fromY, v.toY, v.stepY);
+		
+	if (v.useDim > 2)
+		cnt += fprintf(f, "%*cfromZ=%d, toZ=%d, stepZ=%d\n",
+			f == logfile? logoffset : 0, '|', v.fromZ, v.toZ, v.stepZ);
+
+	if (v.useDim > 3)
+		cnt += fprintf(f, "%*cfromZ1=%d, toZ1=%d, stepZ1=%d\n",
+			f == logfile? logoffset : 0, '|', v.fromZ1, v.toZ1, v.stepZ1);
+	cnt += fprintf(f, "%*cf_int%ddim%s=%p\n",
+		f == logfile? logoffset : 0, '|', v.useDim, v.targetValueFlag? "": "_bool", v.f_int_1dim /* anyway... */);
+
+	
+	/*
 	cnt += fprintf(f, 	// TODO: refactor that stuff!!! using v.useDim 
 		"%*cfromX=%d, toX=%d, stepX=%d fromY=%d, toY=%d, stepY=%d, fromZ=%d, toZ=%d, stepZ=%d, fromZ1=%d, toZ1=%d, stepZ1=%d, \
 		isTargetValue=%d, stopRun=%d, printFlag=%d, modLog=%d f_int1dim=%p f_int2dim=%p\n",
@@ -238,6 +262,6 @@ int                             eng_fautoprint(FILE *f, struct eng_int_interval 
 		v.targetValueFlag,	
 		v.stopRun, v.printFlag, v.modLog, v.f_int_1dim, v.f_int_2dim);	// logoffset must return 0 if log isn't enabled
 	if (v.targetValueFlag)
-		cnt += fprintf(f, "%*c targetValue=%ld\n", logoffset, '|', v.targetValue);	
+		cnt += fprintf(f, "%*c targetValue=%ld\n", logoffset, '|', v.targetValue);	*/
 	return cnt;
 }
