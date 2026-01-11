@@ -28,17 +28,25 @@ int                     main(int argc, const char *argv[]){
     if (!check_arg(3, "Usage: %s 'from' 'to' for the %s\n", *argv, FUNCTION)){
     	return 1;
 	}
+	
+	int from = atoi(argv[1]), 
+		to = atoi(argv[2]);
+	struct eng_int_interval	ru1 = eng_create_int(
+				.useDim = 3, .fromX = from, .fromY = from, .fromZ = from,
+				.toX = to, .toY = to, .toZ = to, .modLog = 1000, .f_int_3dim_bool = target_int_3dim_f
+	);
 
-	struct eng_int_interval	ru1;
+	eng_autoprint(ru1);
+	/*
 	ru1.fromX = ru1.fromY = ru1.fromZ = atoi(argv[1]);
 	ru1.toX = ru1.toY = ru1.toZ = atoi(argv[2]);
 	ru1.targetValueFlag = false;	// bool function! 
 	ru1.stopRun = false;
 	ru1.printFlag = true;	// TODO: make a constructor!! to fill that stuff
 	ru1.modLog = 100;
-	ru1.f_int_3dim_bool = target_int_3dim_f;
+	ru1.f_int_3dim_bool = target_int_3dim_f; */
 
-	printf("Check %s  for natural for r, s, r in [%d - %d]\n", FUNCTION, ru1.fromX, ru1.toX);
+	printf("Check %s for natural for r, s, r in [%d - %d]\n", FUNCTION, ru1.fromX, ru1.toX);
 
 	int cnt = eng_int_3dim(ru1);
 

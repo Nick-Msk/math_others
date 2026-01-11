@@ -1,5 +1,5 @@
 CC=gcc #clang
-CFLAGS= -I../utils/ -Wall -Wextra -std=gnu11 -g -O0
+CFLAGS= -I../utils/ -Wall -Wextra -Wno-override-init -std=gnu11 -g -O0
 LDFLAGS= -lm
 LDLIBS=
 
