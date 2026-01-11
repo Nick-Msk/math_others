@@ -85,7 +85,9 @@ struct eng_flt_interval {
 };
 
 // constructor
-
+#define eng_create_int(...) (struct eng_int_interval)\
+{.useDim = 4, .stepX = 1, .stepY = 1, .stepZ = 1, .stepZ1 = 1, .flags = 0, .targetValueFlag = false, \
+.stopRun = false, .printFlag = true, .modLog = 0, __VA_ARGS__};	
 
 // runners (just true/false or == targetValue)
 // inteter
