@@ -104,8 +104,8 @@ static bool						eng_fl_error(int flags){
 
 // constructor
 #define eng_create_int(...) (struct eng_int_interval)\
-{.useDim = 4, .stepX = 1, .stepY = 1, .stepZ = 1, .stepZ1 = 1, .flags = 0, /* .targetValueFlag = false */, \
-/* .stopRun = false, */ .flags | ENG_PRINT_FLAG, .modLog = 0, __VA_ARGS__};	
+{.useDim = 4, .stepX = 1, .stepY = 1, .stepZ = 1, .stepZ1 = 1, /* .targetValueFlag = false */ \
+/* .stopRun = false, */ .flags = ENG_PRINT_FLAG, .modLog = 0, __VA_ARGS__};	
 
 // construct from file
 struct eng_int_interval 		eng_loadfromfile(const char *cfgname, bool strict /*now ignored */);
