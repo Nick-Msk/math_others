@@ -9,6 +9,7 @@ static const 	int ENG_FLT_COMRARE_DEF_VALUE 	= FLT_EPSILON * 10;	// to use in ta
 static const 	int ENG_PRINT_FLAG 				= 0x1;
 static const 	int ENG_STOP_RUN_FLAG			= 0x2;
 static const 	int ENG_TARGET_VALUE_FLAG		= 0x4;
+static const	int	ENG_ERROR_FLAG				= 0x8;
 
 // integer
 typedef bool    (*tf_int2dim)(int, int, long);
@@ -46,10 +47,10 @@ struct eng_int_interval {
 	int			toZ1;
 	int			stepZ1;	// 1
 	int			flags;	// TODO: 0x1 , 0x2, 0x4 will be supported 
-	bool		targetValueFlag;	// TODO: put all the flags into 1 var via | op
+//	bool		targetValueFlag;	// TODO: put all the flags into 1 var via | op
 	long		targetValue;	// if NOT bool function
-	bool 		stopRun;
-	bool		printFlag;
+//	bool 		stopRun;
+//	bool		printFlag;
 	int			modLog;		// for printing logs cnt % modLog == 0
 	union {
 		tf_int2dim		f_int_2dim;
@@ -71,10 +72,11 @@ struct eng_flt_interval {
 	double		fromY;
 	double		toY;
 	double		stepY;	// probably initStepY
-	bool		targetValueFlag;	// TODO: put all the flags into 1 var via | op
+	int			flags;
+//	bool		targetValueFlag;	// TODO: put all the flags into 1 var via | op
 	double		targetValue;	// if NOT bool function
-	bool 		stopRun;
-	bool		printFlag;
+//	bool 		stopRun;
+//	bool		printFlag;
 	int			modLog;		// for printing logs cnt % modLog == 0
 	union {
 		tf_flt2dim		f_flt_2dim;
@@ -84,10 +86,29 @@ struct eng_flt_interval {
 	};
 };
 
+static bool						eng_fl_targetValue(int flags){
+	return flags & ENG_TARGET_VALUE_FLAG;
+}
+
+static bool						eng_fl_stopRun(int flags){
+	return flags & ENG_STOP_RUN_FLAG;
+}
+
+static bool						eng_fl_print(int flags){
+	return flags & ENG_PRINT_FLAG;
+}
+
+static bool						eng_fl_error(int flags){
+	return flags & ENG_ERROR_FLAG;
+}
+
 // constructor
 #define eng_create_int(...) (struct eng_int_interval)\
-{.useDim = 4, .stepX = 1, .stepY = 1, .stepZ = 1, .stepZ1 = 1, .flags = 0, .targetValueFlag = false, \
-.stopRun = false, .printFlag = true, .modLog = 0, __VA_ARGS__};	
+{.useDim = 4, .stepX = 1, .stepY = 1, .stepZ = 1, .stepZ1 = 1, .flags = 0, /* .targetValueFlag = false */, \
+/* .stopRun = false, */ .flags | ENG_PRINT_FLAG, .modLog = 0, __VA_ARGS__};	
+
+// construct from file
+struct eng_int_interval 		eng_loadfromfile(const char *cfgname, bool strict /*now ignored */);
 
 // runners (just true/false or == targetValue)
 // inteter
