@@ -7,13 +7,13 @@ LDLIBS=
 all:
 
 check: check.c log.o test.o error.o
-	$(CC) $(CFLAGS) -DCHECKERTESTING $^ -o $@_test
+	$(CC) $(CFLAGS) -DCHECKERTESTING $^ -o test/$@_test
 
 check.o: check.c log.c
 	$(CC) $(CFLAGS) $^ -c
 
 error: error.c log.o common.o test.o
-	$(CC) $(CFLAGS) -DERRORTESTING $^ -o $@_test
+	$(CC) $(CFLAGS) -DERRORTESTING $^ -o test/$@_test
 
 error.o: error.c log.o common.o
 	$(CC) $(CFLAGS)  $^ -c
@@ -28,6 +28,7 @@ log.o:	log.c
 common.o: common.c
 	$(CC) $(CFLAGS) $^ -c
 
+# to be replaced by metric.c
 compl_alg: compl_alg.c
 	$(CC) $(CFLAGS) -DCOMPLALGTESTING $^ -o $@_test
 	# TODO: replace to dir test/
@@ -41,7 +42,7 @@ eng_runner.o: eng_runner.c
 	@mv $@ lib/
 
 test: test.c error.o log.o
-	$(CC) $(CFLAGS) -DTESTTESTING $^ -o $@_test
+	$(CC) $(CFLAGS) -DTESTTESTING $^ -o test/$@_test
 
 .PHONY: clean cleanlog cleanall no_targets__ list
 clean:
