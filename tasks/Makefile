@@ -33,7 +33,7 @@ LDLIBS=
 13task: src/13task.c lib/eng_runner.o lib/log.o
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
-14task: src/14task.c lib/eng_runner.o lib/log.o config/14task_func.c
+14task: src/14task.c lib/eng_runner.o lib/log.o lib/checker.o config/14task_func.c
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
 test1: src/test1.c
@@ -45,6 +45,10 @@ UTIL_PATH = ../utils
 lib/log.o:
 	cd $(UTIL_PATH) && $(MAKE) log.o
 	@cp $(UTIL_PATH)/lib/log.o lib/
+
+lib/checker.o:
+	cd $(UTIL_PATH) && $(MAKE) checker.o
+	@cp $(UTIL_PATH)/lib/checker.o lib/
 
 lib/test.o:
 	cd $(UTIL_PATH) && $(MAKE) test.o

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "check.h"
+#include "checker.h"
 #include "eng_runner.h"
 #include "log.h"
 
