@@ -20,30 +20,30 @@ int                     main(int argc, const char *argv[]){
 
 	if (argc > 1){
         if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0){
-            printf("%s task from zen 12.01.2026\nUsage:%s 'from' 'to'  %s \n", __FILE__, *argv, FUNCTION); // Usage here??
+            printf("%s task from zen 12.01.2026\nUsage:%s conf_file, target  %s \n", __FILE__, *argv, FUNCTION); // Usage here??
             return 0;
         }
     }
 
-    if (!check_arg(2, "Usage: %s 'from' 'to' for the %s\n", *argv, FUNCTION)){
+    if (!check_arg(2, "Usage: %s conf_file, target %s\n", *argv, FUNCTION)){
     	return 1;
 	}
 	
-	int from = atoi(argv[1]), 
-	to = atoi(argv[2]);
+	/* user conf file instead
+	 * int from = atoi(argv[1]), 
+	to = atoi(argv[2]); */
 
-	struct eng_int_interval	ru1 = eng_create_int(
-				.useDim = 2, .fromX = from, .fromY = from, .fromZ = from,
-				.toX = to, .toY = to, .toZ = to, .modLog = 1000, .f_int_2dim_bool = target_int_2dim_f
-	);
+	// TODO: taget function can be parsed in loadfromfile() via useDim && targetValueFlag
+	// nut for now it's here
+	struct eng_int_interval	ru1 = eng_create_int(.f_int_2dim_bool = target_int_2dim_f);
 
-	// TODO: 
-	// const chat *confname = argv[1];
-	// ru1 = eng_loadfromfile(confname, false);
-	// if (ru1.flags &  ENG_ERROR_FLAG){
-	// 	fprintf(stderr, "Failed to load config\n"); // no function name there! Always  <N>task_func.c
-	// 	return 2;
-	// }
+	const char *confname = argv[1];
+	eng_loadfromfile(confname, &ru1, false);
+
+	if (ru1.flags &  ENG_ERROR_FLAG){
+	 	fprintf(stderr, "Failed to load config\n"); // no function name there! Always  <N>task_func.c
+	 	return 2;
+	}
 
 	eng_autoprint(ru1);
 
