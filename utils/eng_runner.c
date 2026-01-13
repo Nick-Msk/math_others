@@ -21,7 +21,7 @@ struct eng_int_interval        	*eng_loadfromfile(const char *cfgname, struct en
 		return logerr(st, "st is null");
 	}*/
 	if (!inv(st != 0, "st must be not null"))
-		return logret(st, "");
+		return logret(st, "...");
 
 	FILE *f = fopen(cfgname, "r");
 	if (f == 0){
