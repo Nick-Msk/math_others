@@ -113,13 +113,15 @@ struct eng_int_interval 		*eng_loadfromfile(const char *cfgname, struct eng_int_
 // runners (just true/false or == targetValue)
 // inteter
 // TODO: replace to eng_int_run(...);
+int								eng_int_run(struct eng_int_interval rt);
+
 int								eng_int_1dim(struct eng_int_interval rt);
 
 int                             eng_int_2dim(struct eng_int_interval rt);
 
 int								eng_int_3dim(struct eng_int_interval rt);
 
-int								eng_int_3dim(struct eng_int_interval rt);
+int								eng_int_4dim(struct eng_int_interval rt);
 
 // float
 int								eng_flt_1dim(struct eng_flt_interval rt);
@@ -137,6 +139,7 @@ int                             eng_check_int3dim_interval(struct eng_int_interv
 int                             eng_check_int4dim_interval(struct eng_int_interval rt, long val_from, long val_to);
 
 // float
+// TODO: eng_float_run(struct eng_flt_interval rt);
 int                             eng_check_flt2dim_interval(struct eng_flt_interval rt, double val_from, double val_to);	// TODO:
 
 // printers

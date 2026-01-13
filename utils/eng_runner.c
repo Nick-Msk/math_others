@@ -86,7 +86,6 @@ struct eng_int_interval        	*eng_loadfromfile(const char *cfgname, struct en
 			st->flags |= ENG_ERROR_FLAG;
 			fprintf(stderr, "Unsupported param %s\n", name);
 		}
-		//skip_line(f);
 	}
 	fclose(f);
 	if (strict){
@@ -100,6 +99,31 @@ struct eng_int_interval        	*eng_loadfromfile(const char *cfgname, struct en
 	return logret(st, "... is_ok - %s", bool_str(eng_fl_error(st->flags)));
 }
 
+// general int runner
+int								eng_int_run(struct eng_int_interval rt){
+	logenter("DIM %d", rt.useDim);
+
+	int ret = 0;
+
+	switch (rt.useDim){
+		case 1:
+			ret = eng_int_1dim(rt);
+		break;
+		case 2:
+			ret = eng_int_2dim(rt);
+		break;
+		case 3:
+			ret = eng_int_3dim(rt);
+		break;
+		case 4:
+			ret = eng_int_4dim(rt);
+		break;
+		default:
+			fprintf(stderr, "%s : unsupported DIM %d for integer runner\n", __func__, rt.useDim);
+	}
+
+	return logret(ret, "Total found %d", ret);
+}
 
 // for 1 dim int
 int								eng_int_1dim(struct eng_int_interval rt){
