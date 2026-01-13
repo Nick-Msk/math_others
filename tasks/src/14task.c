@@ -49,7 +49,7 @@ int                     main(int argc, const char *argv[]){
 
 	printf("Check %s for natural for x, y in [%d - %d]\n", FUNCTION, ru1.fromX, ru1.toX);
 
-	int cnt = eng_int_2dim(ru1);
+	int cnt = eng_int_run(ru1);
 
     if (cnt > 0){
         printf("%d was/were found\n", cnt);
