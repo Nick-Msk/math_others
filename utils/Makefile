@@ -11,12 +11,14 @@ check: check.c log.o test.o error.o
 
 check.o: check.c log.c
 	$(CC) $(CFLAGS) $^ -c
+	@mv $@ lib/
 
 error: error.c log.o common.o test.o
 	$(CC) $(CFLAGS) -DERRORTESTING $^ -o test/$@_test
 
 error.o: error.c log.o common.o
 	$(CC) $(CFLAGS)  $^ -c
+	@mv $@ lib/
 
 log: log.c test.o error.o
 	$(CC) $(CFLAGS) -DLOGTESTING $^ -o test/$@_test
@@ -37,7 +39,7 @@ compl_alg.o: compl_alg.c
 	$(CC) $(CFLAGS) $^ -c
 	# TODO: replace to lib/ dir
 
-eng_runner.o: eng_runner.c
+eng_runner.o: eng_runner.c 
 	$(CC) $(CFLAGS) $^ -c
 	@mv $@ lib/
 

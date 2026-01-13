@@ -3,6 +3,7 @@
 
 #include "eng_runner.h"
 #include "log.h"
+#include "checker.h"
 
 // interval
 static void						skip_line(FILE *f){
@@ -16,9 +17,11 @@ struct eng_int_interval        	*eng_loadfromfile(const char *cfgname, struct en
 	logenter("from %s, st [%p]", cfgname, st);
 
 	// TODO: replace to inv from checker
-	if (st == 0){
+	/*if (st == 0){
 		return logerr(st, "st is null");
-	}
+	}*/
+	if (!inv(st != 0, "st must be not null"))
+		return logret(st, "");
 
 	FILE *f = fopen(cfgname, "r");
 	if (f == 0){
