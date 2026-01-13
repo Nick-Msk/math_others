@@ -4,74 +4,100 @@
 #include "eng_runner.h"
 #include "log.h"
 
-// construct from file
-struct eng_int_interval        	eng_loadfromfile(const char *cfgname, bool strict /*now ignored */){
-	logenter("from %s", cfgname);
+// interval
+static void						skip_line(FILE *f){
+	int c;
+	while ( (c = fgetc(f)) != EOF && c != '\n')
+		;
+}
 
-	struct eng_int_interval st = {};
+// construct from file
+struct eng_int_interval        	*eng_loadfromfile(const char *cfgname, struct eng_int_interval *st,  bool strict /*now ignored */){
+	logenter("from %s, st [%p]", cfgname, st);
+
+	// TODO: replace to inv from checker
+	if (st == 0){
+		return logerr(st, "st is null");
+	}
 
 	FILE *f = fopen(cfgname, "r");
 	if (f == 0){
-		st.flags = ENG_ERROR_FLAG;
-		return st;
+		st->flags |= ENG_ERROR_FLAG;
+		return logerr(st, "unable to opern file");
 	}
 	char	name[100];
 	long	value;
+	int		c;
 	// very simple method
-	while (fscanf(f, "%s=%ld\n", name, &value) != EOF){
+	while ( (c = fgetc(f))!= EOF){
+		if (c == '#')
+			skip_line(f);
+		else
+			ungetc(c, f);
+		if (fscanf(f, "%s = %ld\n", name, &value) == EOF)
+			continue; 
 		logmsg("name [%s], val [%ld]", name, value);
 		// TODO: replace to macros
 		if (strcasecmp(name, "DIM") == 0)
-			st.useDim = value;	
+			st->useDim = value;	
 		else if (strcasecmp(name, "FROMX") == 0)
-			st.fromX = value;
+			st->fromX = value;
 		else if (strcasecmp(name, "TOX") == 0)
-			st.toX = value;
+			st->toX = value;
 		else if (strcasecmp(name, "STEPX") == 0)
-			st.stepX = value;
+			st->stepX = value;
 		else if (strcasecmp(name, "FROMY") == 0)
-			st.fromY = value;
+			st->fromY = value;
 		else if (strcasecmp(name, "TOY") == 0)
-			st.toY = value;
+			st->toY = value;
 		else if (strcasecmp(name, "STEPY") == 0)
-			st.stepY = value;
+			st->stepY = value;
 		else if (strcasecmp(name, "FROMZ") == 0)
-			st.fromZ = value;
+			st->fromZ = value;
 		else if (strcasecmp(name, "TOZ") == 0)
-			st.toZ = value;
+			st->toZ = value;
 		else if (strcasecmp(name, "STEPZ") == 0)
-			st.stepZ = value;
+			st->stepZ = value;
 		else if (strcasecmp(name, "FROMZ1") == 0)
-			st.fromZ1 = value;
+			st->fromZ1 = value;
 		else if (strcasecmp(name, "TOZ1") == 0)
-			st.toZ1 = value;
+			st->toZ1 = value;
 		else if (strcasecmp(name, "STEPZ1") == 0)
-			st.stepZ1 = value;
+			st->stepZ1 = value;
 		else if (strcasecmp(name, "MODLOG") == 0)
-			st.modLog = value;
+			st->modLog = value;
 		else if (strcasecmp(name, "TARGETVALUE") == 0){
-			st.targetValue = value;
-			st.flags |= ENG_TARGET_VALUE_FLAG;
+			st->targetValue = value;
+			st->flags |= ENG_TARGET_VALUE_FLAG;
 		}
-		else if (strcasecmp(name, "STOPRUN") == 0)
-			st.flags |= ENG_STOP_RUN_FLAG;
-		else if (strcasecmp(name, "PRINTFLAG") == 0)
-			st.flags |= ENG_PRINT_FLAG;
+		else if (strcasecmp(name, "STOPRUN") == 0){
+			if (value == 0)
+				st -> flags &= ENG_STOP_RUN_FLAG;
+			else
+				st->flags |= ENG_STOP_RUN_FLAG;
+		}
+		else if (strcasecmp(name, "PRINTFLAG") == 0){
+			if (value == 0)					
+				st->flags &= ENG_PRINT_FLAG;
+			else
+				st->flags |= ENG_PRINT_FLAG;
+		}
 		else {
-			st.flags |= ENG_ERROR_FLAG;
+			st->flags |= ENG_ERROR_FLAG;
 			fprintf(stderr, "Unsupported param %s\n", name);
 		}
+		//skip_line(f);
 	}
 	fclose(f);
 	if (strict){
 		// TODO: probable some checking here...
-		if (st.useDim > 4 || st.useDim < 1){
-			st.flags |= ENG_ERROR_FLAG;
-			fprintf(stderr, "Dim %d is out of range (1-4)", st.useDim);
+		if (st->useDim > 4 || st->useDim < 1){
+			st->flags |= ENG_ERROR_FLAG;
+			fprintf(stderr, "Dim %d is out of range (1-4)", st->useDim);
 		}
 	}
-	eng_fautoprint(logfile, st);
-	return logret(st, "... is_ok - %s", bool_str(eng_fl_error(st.flags)));
+	eng_fautoprint(logfile, *st);
+	return logret(st, "... is_ok - %s", bool_str(eng_fl_error(st->flags)));
 }
 
 
@@ -313,7 +339,7 @@ int                             eng_check_int2dim_interval(struct eng_int_interv
 		rt.targetValue = i;	
     	total += eng_int_2dim(rt);
 	}
-    return logret(total, "%d", total);
+    return logret(total, "FOUND: %d", total);
 }
 
 int                             eng_fautoprint(FILE *f, struct eng_int_interval v){
@@ -322,10 +348,11 @@ int                             eng_fautoprint(FILE *f, struct eng_int_interval 
 	bool					targetValueFlag = eng_fl_targetValue(v.flags);
 	bool					printFlag 		= eng_fl_print(v.flags);
 	bool					stopRun 		= eng_fl_stopRun(v.flags);
+	bool					errorFlag		= eng_fl_error(v.flags);
 	
-	cnt += fprintf(f, "%*cINT DIM=%d, targetValueFlag=%s, stopRun=%s, printFlag=%s, modLog=%d\n",
+	cnt += fprintf(f, "%*cINT DIM=%d, targetValueFlag=%s, stopRun=%s, printFlag=%s, errorFlag=%s modLog=%d\n",
 		f == logfile? logoffset : 0, '|',
-		v.useDim, bool_str(targetValueFlag), bool_str(stopRun), bool_str(printFlag), v.modLog);
+		v.useDim, bool_str(targetValueFlag), bool_str(stopRun), bool_str(printFlag), bool_str(errorFlag), v.modLog);
 	
 	cnt += fprintf(f, "%*cfromX=%d, toX=%d, stepX=%d\n",
 		f == logfile? logoffset : 0, '|', v.fromX, v.toX, v.stepX);
