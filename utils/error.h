@@ -11,7 +11,8 @@
 
 // ----------- CONSTANTS AND GLOBALS ---------------
 
-static const int                        ERROR_MESSAGE_MAX_LENGTH = 256;
+// static const int                        ERROR_MESSAGE_MAX_LENGTH = 256; replaced to macro for gcc
+#define									ERROR_MESSAGE_MAX_LENGTH  256
 
 // ------------------- TYPES -----------------------
 

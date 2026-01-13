@@ -1,19 +1,21 @@
-#include <stdlib.h>
-#include <string.h>
-#include <sys/errno.h>
-#include <stdarg.h>
-#include "log.h"
-#include "common.h"
+#include <stdlib.h> 
+#include <string.h> 
+#include <sys/errno.h> 
+#include <stdarg.h> 
+
+#include "log.h" 
+#include "common.h" 
 #include "error.h"
 
 /********************************************************************
-                 ERROR MODULE IMPLEMENTATION
-********************************************************************/
+  ERROR MODULE IMPLEMENTATION
+ ********************************************************************/
 
 // static globals
 
 static const int                        ERROR_DEFAULT_INCREMENT  = 16;
-static const int						ERROR_INIT_COUNT		 = 100;
+// static const int						ERROR_INIT_COUNT		 = 100;		replace to define for gcc
+#define									ERROR_INIT_COUNT		   100	
 static const int                    	ERR_DEFHANDLER_JUMP_CODE = 10;
 
 // internal types
@@ -74,7 +76,7 @@ err_increase(void)
 	if (err_isinit())
 	{
 		if ( (err = malloc(newalloc * sizeof(Error))) == 0)
-			return logsimple(0, "Unable to init alloc of %d elements", newalloc);
+			return logsimpleret(0, "Unable to init alloc of %d elements", newalloc);
 	}
 	else {
        	if ( (err = realloc(g_error, newalloc * sizeof(Error))) == 0)
@@ -131,9 +133,9 @@ err_default_handler(int sig)
     logsimple("HANDLER %d", sig);
     if (!errenv.init_flag)
     {
-        logsimple(0, "Env buffer is empty");
+        logsimpleret(0, "Env buffer is empty");
 		if (sig == SIGINT)
-			logsimple(0, "No env buffer - just working as igrone SIGINT");
+			logsimpleret(0, "No env buffer - just working as igrone SIGINT");
 		else {
 			logsimpleerr(0, "terminating SIGSTOP");
         	raise(SIGSTOP);
