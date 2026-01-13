@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* ---------------------------------------------------------------------------------
 
@@ -20,19 +21,19 @@ API:
 #define 		TOTAL_MOD		"Total modules[%d]\n"
 #define 		MODULE_DESC		"Modname(%d) %s: level[%d]\n"
 
-// static 			const int		MAX_SZ				=4096;			// better to use POSIX or SC limitation instead of this constant
+// static 			const int		MAX_SZ				= 4096;			// better to use POSIX or SC limitation instead of this constant
 // define for gcc
 #define			MAX_SZ			4096																	
-//static 			const int		TIME_SZ				=100;
+//static 			const int		TIME_SZ				= 100;
 // define for gcc
 #define 		TIME_SZ			100
 
-static			const int		OFFSET_INC			=4;
+static			const int		OFFSET_INC			= 4;
 
-static			int				g_offset			=0;				// current logging offset
-static			int				g_offset_inc		=OFFSET_INC;	// currect offset increment
-static			char			g_logname[MAX_SZ]	="default.log";	// current  logging file name
-static			FILE		   *g_logfile			=0;				// current logging file (init on 1 exec if null)
+static			int				g_offset			= 0;				// current logging offset
+static			int				g_offset_inc		= OFFSET_INC;	// currect offset increment
+static			char			g_logname[MAX_SZ]	= "default.log";	// current  logging file name
+static			FILE		   *g_logfile			= 0;				// current logging file (init on 1 exec if null)
 static			char			g_time_buf[TIME_SZ];				// buffer for time print
 
 static 			int				g_modcount			= 1;						// count of registered modules
@@ -141,7 +142,7 @@ log_preambule(
                 fprintf(g_logfile, "%*c", lv + 1, '\0');
 			break;
 			case LOG_FORMAT_ALL:
-				fprintf(g_logfile, "%*c%s:%s:%s(%d)]:%s(%s): ", lv + 1, '[', modname == DEFAULT_MOD ? "": modname,
+				fprintf(g_logfile, "%*c%s:%s:%s(%d)]:%s(%s): ", lv + 1, '[', strcmp(modname, DEFAULT_MOD) == 0 ? "": modname,
 					 filename, funcname, lineno, act_msg, print_time());
 			break;
 			case LOG_FORMAT_SIMPLE:
@@ -154,7 +155,7 @@ log_preambule(
 				fprintf(g_logfile, "%*c%s(%d)]:%s(%s): ", lv + 1, '[', funcname, lineno, act_msg, print_time());
 			break;
 			case LOG_FORMAT_ONLY_FILE:
-				fprintf(g_logfile, "%*c%s:%s(%d)]:%s%c ", lv + 1, '[', modname == DEFAULT_MOD ? "": modname, filename, lineno, act_msg, *act_msg != '\0' ? ':' : ' ');
+				fprintf(g_logfile, "%*c%s:%s(%d)]:%s%c ", lv + 1, '[', strcmp(modname, DEFAULT_MOD) == 0 ? "": modname, filename, lineno, act_msg, *act_msg != '\0' ? ':' : ' ');
 			break;
 			default:
 				fprintf(stderr, "Logger: Incorrect format schema [%d]\n", g_format_schema);
