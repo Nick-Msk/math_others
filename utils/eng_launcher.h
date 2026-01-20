@@ -3,8 +3,6 @@
 
 #include "eng_runner.h"
 
-extern         bool f_eng_common(bool);
-
 // ...
 
 struct eng_launcher_data {
