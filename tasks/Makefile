@@ -36,6 +36,9 @@ LDLIBS=
 14task: src/14task.c lib/eng_runner.o lib/log.o lib/checker.o config/14task_func.c
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
+15task_func: src/15task_func.c lib/eng_launcher.o lib/eng_runner.o lib/log.o lib/checker.o
+		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
+
 test1: src/test1.c
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
@@ -68,6 +71,10 @@ lib/common.o:
 lib/eng_runner.o:
 	cd $(UTIL_PATH) && $(MAKE) eng_runner.o
 	@cp $(UTIL_PATH)/lib/eng_runner.o lib/
+
+lib/eng_launcher.o:
+	cd $(UTIL_PATH) && $(MAKE) eng_launcher.o
+	@cp $(UTIL_PATH)/lib/eng_launcher.o lib/
 
 .PHONY: clean cleanlog cleanall no_targets__ list
 clean:
