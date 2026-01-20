@@ -1,10 +1,15 @@
 #include "bool.h"
 #include "eng_launcher.h"
+#include "eng_runner.h"
+
 
 // 1. target func
-bool f_eng_common(int x, int y){
+bool myboolfunc(int x, int y){
    return x + x * y + y == 7;
 }
+
+// as external
+union eng_un_int_func eng_un_int_func_api = (union eng_un_int_func) {.f_int_2dim_bool = myboolfunc};
 
 struct eng_launcher_data eng_data = (struct eng_launcher_data) {
 		.func_description = "x+xy+y==7", 
