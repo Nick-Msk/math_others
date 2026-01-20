@@ -138,8 +138,8 @@ int								eng_int_1dim(struct eng_int_interval rt){
 		if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
 			logsimple("cnt=%lu", cnt);
         if (
-			(targetValueFlag && rt.f_int_1dim(x, rt.targetValue)) ||
-			(!targetValueFlag && rt.f_int_1dim_bool(x))
+			(targetValueFlag && rt.f.f_int_1dim(x, rt.targetValue)) ||
+			(!targetValueFlag && rt.f.f_int_1dim_bool(x))
 		)
 		{
             if (printFlag)
@@ -170,8 +170,8 @@ int                             eng_int_2dim(struct eng_int_interval rt){
 			if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
 				logsimple("cnt=%lu", cnt);
         	if (
-				(targetValueFlag && rt.f_int_2dim(x, y, rt.targetValue)) ||
-				(!targetValueFlag && rt.f_int_2dim_bool(x, y))
+				(targetValueFlag && rt.f.f_int_2dim(x, y, rt.targetValue)) ||
+				(!targetValueFlag && rt.f.f_int_2dim_bool(x, y))
 			)
 			{
             	if (printFlag)
@@ -204,8 +204,8 @@ int                             eng_int_3dim(struct eng_int_interval rt){
 					if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
 						logsimple("cnt=%lu", cnt);
 					if (
-						(targetValueFlag && rt.f_int_3dim(x, y, z, rt.targetValue)) ||
-						(!targetValueFlag && rt.f_int_3dim_bool(x, y, z))
+						(targetValueFlag && rt.f.f_int_3dim(x, y, z, rt.targetValue)) ||
+						(!targetValueFlag && rt.f.f_int_3dim_bool(x, y, z))
 					)
 					{
 						if (printFlag)
@@ -239,8 +239,8 @@ int                             eng_int_4dim(struct eng_int_interval rt){
 							if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
 								logsimple("cnt=%lu", cnt);
 							if (
-								(targetValueFlag && rt.f_int_4dim(x, y, z, z1, rt.targetValue)) ||
-								(!targetValueFlag && rt.f_int_4dim_bool(x, y, z, z1))
+								(targetValueFlag && rt.f.f_int_4dim(x, y, z, z1, rt.targetValue)) ||
+								(!targetValueFlag && rt.f.f_int_4dim_bool(x, y, z, z1))
 							)
 							{
 								if (printFlag)
@@ -393,7 +393,7 @@ int                             eng_fautoprint(FILE *f, struct eng_int_interval 
 		cnt += fprintf(f, "%*cfromZ1=%d, toZ1=%d, stepZ1=%d\n",
 			f == logfile? logoffset : 0, '|', v.fromZ1, v.toZ1, v.stepZ1);
 	cnt += fprintf(f, "%*cf_int%ddim%s=%p\n",
-		f == logfile? logoffset : 0, '|', v.useDim, targetValueFlag? "": "_bool", v.f_int_1dim /* anyway... */);
+		f == logfile? logoffset : 0, '|', v.useDim, targetValueFlag? "": "_bool", v.f.f_int_1dim /* anyway... */);
 	
 	if (targetValueFlag)
 		cnt += fprintf(f, "%*c targetValue=%ld\n", logoffset, '|', v.targetValue);
