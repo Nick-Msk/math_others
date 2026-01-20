@@ -43,6 +43,10 @@ eng_runner.o: eng_runner.c
 	$(CC) $(CFLAGS) $^ -c
 	@mv $@ lib/
 
+eng_launcher.o: eng_launcher.c 
+	$(CC) $(CFLAGS) $^ -c
+	@mv $@ lib/
+
 test: test.c error.o log.o
 	$(CC) $(CFLAGS) -DTESTTESTING $^ -o test/$@_test
 

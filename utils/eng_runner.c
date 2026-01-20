@@ -13,21 +13,18 @@ static void						skip_line(FILE *f){
 }
 
 // construct from file
-struct eng_int_interval        	*eng_loadfromfile(const char *cfgname, struct eng_int_interval *st,  bool strict /*now ignored */){
-	logenter("from %s, st [%p]", cfgname, st);
+struct eng_int_interval        	eng_loadfromfile(const char *cfgname, bool strict /*now ignored */){
+	logenter("from %s, strict [%s]", cfgname, bool_str(strict));
 
-	// TODO: replace to inv from checker
-	/*if (st == 0){
-		return logerr(st, "st is null");
-	}*/
-	if (!inv(st != 0, "st must be not null"))
-		return logret(st, "...");
+	// use defaults
+	struct eng_int_interval st =  eng_create_int();
 
 	FILE *f = fopen(cfgname, "r");
-	if (f == 0){
-		st->flags |= ENG_ERROR_FLAG;
+	if (!inv(f != 0, "unable to opern file") ){
+		st.flags |= ENG_ERROR_FLAG;
 		return logerr(st, "unable to opern file");
 	}
+
 	char	name[100];
 	long	value;
 	int		c;
@@ -42,64 +39,64 @@ struct eng_int_interval        	*eng_loadfromfile(const char *cfgname, struct en
 		logmsg("name [%s], val [%ld]", name, value);
 		// TODO: replace to macros
 		if (strcasecmp(name, "DIM") == 0)
-			st->useDim = value;	
+			st.useDim = value;	
 		else if (strcasecmp(name, "FROMX") == 0)
-			st->fromX = value;
+			st.fromX = value;
 		else if (strcasecmp(name, "TOX") == 0)
-			st->toX = value;
+			st.toX = value;
 		else if (strcasecmp(name, "STEPX") == 0)
-			st->stepX = value;
+			st.stepX = value;
 		else if (strcasecmp(name, "FROMY") == 0)
-			st->fromY = value;
+			st.fromY = value;
 		else if (strcasecmp(name, "TOY") == 0)
-			st->toY = value;
+			st.toY = value;
 		else if (strcasecmp(name, "STEPY") == 0)
-			st->stepY = value;
+			st.stepY = value;
 		else if (strcasecmp(name, "FROMZ") == 0)
-			st->fromZ = value;
+			st.fromZ = value;
 		else if (strcasecmp(name, "TOZ") == 0)
-			st->toZ = value;
+			st.toZ = value;
 		else if (strcasecmp(name, "STEPZ") == 0)
-			st->stepZ = value;
+			st.stepZ = value;
 		else if (strcasecmp(name, "FROMZ1") == 0)
-			st->fromZ1 = value;
+			st.fromZ1 = value;
 		else if (strcasecmp(name, "TOZ1") == 0)
-			st->toZ1 = value;
+			st.toZ1 = value;
 		else if (strcasecmp(name, "STEPZ1") == 0)
-			st->stepZ1 = value;
+			st.stepZ1 = value;
 		else if (strcasecmp(name, "MODLOG") == 0)
-			st->modLog = value;
+			st.modLog = value;
 		else if (strcasecmp(name, "TARGETVALUE") == 0){
-			st->targetValue = value;
-			st->flags |= ENG_TARGET_VALUE_FLAG;
+			st.targetValue = value;
+			st.flags |= ENG_TARGET_VALUE_FLAG;
 		}
 		else if (strcasecmp(name, "STOPRUN") == 0){
 			if (value == 0)
-				st -> flags &= ENG_STOP_RUN_FLAG;
+				st.flags &= ENG_STOP_RUN_FLAG;
 			else
-				st->flags |= ENG_STOP_RUN_FLAG;
+				st.flags |= ENG_STOP_RUN_FLAG;
 		}
 		else if (strcasecmp(name, "PRINTFLAG") == 0){
 			if (value == 0)					
-				st->flags &= ENG_PRINT_FLAG;
+				st.flags &= ENG_PRINT_FLAG;
 			else
-				st->flags |= ENG_PRINT_FLAG;
+				st.flags |= ENG_PRINT_FLAG;
 		}
 		else {
-			st->flags |= ENG_ERROR_FLAG;
+			st.flags |= ENG_ERROR_FLAG;
 			fprintf(stderr, "Unsupported param %s\n", name);
 		}
 	}
 	fclose(f);
 	if (strict){
 		// TODO: probable some checking here...
-		if (st->useDim > 4 || st->useDim < 1){
-			st->flags |= ENG_ERROR_FLAG;
-			fprintf(stderr, "Dim %d is out of range (1-4)", st->useDim);
+		if (st.useDim > 4 || st.useDim < 1){
+			st.flags |= ENG_ERROR_FLAG;
+			fprintf(stderr, "Dim %d is out of range (1-4)", st.useDim);
 		}
 	}
-	eng_fautoprint(logfile, *st);
-	return logret(st, "... is_ok - %s", bool_str(eng_fl_error(st->flags)));
+	eng_fautoprint(logfile, st);
+	return logret(st, "... is_ok - %s", bool_str(eng_fl_error(st.flags)));
 }
 
 // general int runner

@@ -46,11 +46,8 @@ struct eng_int_interval {
 	int			fromZ1;
 	int			toZ1;
 	int			stepZ1;	// 1
-	int			flags;	// TODO: 0x1 , 0x2, 0x4 will be supported 
-//	bool		targetValueFlag;	// TODO: put all the flags into 1 var via | op
+	int			flags;	// 0x1 , 0x2, 0x3, 0x4
 	long		targetValue;	// if NOT bool function
-//	bool 		stopRun;
-//	bool		printFlag;
 	int			modLog;		// for printing logs cnt % modLog == 0
 	union {
 		tf_int2dim		f_int_2dim;
@@ -73,10 +70,7 @@ struct eng_flt_interval {
 	double		toY;
 	double		stepY;	// probably initStepY
 	int			flags;
-//	bool		targetValueFlag;	// TODO: put all the flags into 1 var via | op
 	double		targetValue;	// if NOT bool function
-//	bool 		stopRun;
-//	bool		printFlag;
 	int			modLog;		// for printing logs cnt % modLog == 0
 	union {
 		tf_flt2dim		f_flt_2dim;
@@ -108,7 +102,7 @@ static bool						eng_fl_error(int flags){
  .flags = ENG_PRINT_FLAG, .modLog = 0, __VA_ARGS__};	
 
 // construct from file
-struct eng_int_interval 		*eng_loadfromfile(const char *cfgname, struct eng_int_interval *st, bool strict);
+struct eng_int_interval 		eng_loadfromfile(const char *cfgname, bool strict);
 
 // runners (just true/false or == targetValue)
 // inteter
