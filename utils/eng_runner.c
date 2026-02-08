@@ -25,7 +25,7 @@ struct eng_int_interval        	eng_loadfromfile(const char *cfgname, bool stric
 		return logerr(st, "unable to opern file");
 	}
 
-	char	name[100];
+	char	name[100], val[200];
 	long	value;
 	int		c;
 	// very simple method
@@ -34,9 +34,10 @@ struct eng_int_interval        	eng_loadfromfile(const char *cfgname, bool stric
 			skip_line(f);
 		else
 			ungetc(c, f);
-		if (fscanf(f, "%s = %ld\n", name, &value) == EOF)
+		if (fscanf(f, "%s = %s\n", name, val) == EOF)
 			continue; 
-		logmsg("name [%s], val [%ld]", name, value);
+		value = atol(val);
+		logmsg("name [%s], value [%ld], val [%s]", name, value, val);
 		// TODO: replace to macros
 		if (strcasecmp(name, "DIM") == 0)
 			st.useDim = value;	
@@ -82,6 +83,8 @@ struct eng_int_interval        	eng_loadfromfile(const char *cfgname, bool stric
 			else
 				st.flags |= ENG_PRINT_FLAG;
 		}
+		else if (strcasecmp(name, "PRINT_MSG") == 0)
+			strncpy(st.print_msg, val, sizeof(st.print_msg));
 		else {
 			st.flags |= ENG_ERROR_FLAG;
 			fprintf(stderr, "Unsupported param %s\n", name);
@@ -142,12 +145,16 @@ int								eng_int_1dim(struct eng_int_interval rt){
 			(!targetValueFlag && rt.f.f_int_1dim_bool(x))
 		)
 		{
-            if (printFlag)
-                printf("Target function(%d) is true ", x);
-			if (targetValueFlag)
-				printf("(for %ld)\n", rt.targetValue);
-			else
-				printf("\n");
+            if (printFlag){
+				if (strlen(rt.print_msg) > 0)	// MUST contains %d
+					printf(rt.print_msg, x);
+				else
+					printf("Target function(%d) is true ", x);
+				if (targetValueFlag)
+					printf("(for %ld)\n", rt.targetValue);
+				else
+					printf("\n");
+			}
 			if (stopRun)
                 return 1;
             else
@@ -174,12 +181,16 @@ int                             eng_int_2dim(struct eng_int_interval rt){
 				(!targetValueFlag && rt.f.f_int_2dim_bool(x, y))
 			)
 			{
-            	if (printFlag)
-                	printf("Target function(%d, %d) is true", x, y);
-				if (targetValueFlag)
-					printf("for %ld)\n", rt.targetValue);
-				else
-					printf("\n");
+            	if (printFlag){
+					if (strlen(rt.print_msg) > 0)	// MUST contains %d %d
+						printf(rt.print_msg, x, y);
+                	else
+						printf("Target function(%d, %d) is true", x, y);
+					if (targetValueFlag)
+						printf("for %ld)\n", rt.targetValue);
+					else
+						printf("\n");
+				}
                 if (stopRun)
                    	return 1;
                 else
@@ -208,12 +219,16 @@ int                             eng_int_3dim(struct eng_int_interval rt){
 						(!targetValueFlag && rt.f.f_int_3dim_bool(x, y, z))
 					)
 					{
-						if (printFlag)
-							printf("Target function(%d, %d, %d) is true", x, y, z);
-						if (targetValueFlag)
-							printf("for %ld)\n", rt.targetValue);
-						else
-							printf("\n");
+						if (printFlag){
+							if (strlen(rt.print_msg) > 0){	// MUST contains %d %d %d
+								printf(rt.print_msg, x, y, z);
+							} else 
+								printf("Target function(%d, %d, %d) is true", x, y, z);
+							if (targetValueFlag)
+								printf("for %ld)\n", rt.targetValue);
+							else
+								printf("\n");
+						}
 						if (stopRun)
 							return 1;
 						else
@@ -243,12 +258,16 @@ int                             eng_int_4dim(struct eng_int_interval rt){
 								(!targetValueFlag && rt.f.f_int_4dim_bool(x, y, z, z1))
 							)
 							{
-								if (printFlag)
-									printf("Target function(%d, %d, %d) is true", x, y, z);
-								if (targetValueFlag)
-									printf("for %ld)\n", rt.targetValue);
-								else
-									printf("\n");
+								if (printFlag){
+									if (strlen(rt.print_msg) > 0)	// MUST contains %d %d %d %d
+										printf(rt.print_msg, x, y, z, z1);
+									else
+										printf("Target function(%d, %d, %d) is true", x, y, z);
+									if (targetValueFlag)
+										printf("for %ld)\n", rt.targetValue);
+									else
+										printf("\n");
+								}
 								if (stopRun)
 									return 1;
 								else
@@ -374,9 +393,9 @@ int                             eng_fautoprint(FILE *f, struct eng_int_interval 
 	bool					stopRun 		= eng_fl_stopRun(v.flags);
 	bool					errorFlag		= eng_fl_error(v.flags);
 	
-	cnt += fprintf(f, "%*cINT DIM=%d, targetValueFlag=%s, stopRun=%s, printFlag=%s, errorFlag=%s modLog=%d\n",
+	cnt += fprintf(f, "%*cINT DIM=%d, targetValueFlag=%s, stopRun=%s, printFlag=%s, errorFlag=%s, modLog=%d, print_msg=%s\n",
 		f == logfile? logoffset : 0, '|',
-		v.useDim, bool_str(targetValueFlag), bool_str(stopRun), bool_str(printFlag), bool_str(errorFlag), v.modLog);
+		v.useDim, bool_str(targetValueFlag), bool_str(stopRun), bool_str(printFlag), bool_str(errorFlag), v.modLog, v.print_msg);
 	
 	cnt += fprintf(f, "%*cfromX=%d, toX=%d, stepX=%d\n",
 		f == logfile? logoffset : 0, '|', v.fromX, v.toX, v.stepX);

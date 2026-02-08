@@ -68,6 +68,7 @@ struct eng_int_interval {
 	int			flags;	// 0x1 , 0x2, 0x3, 0x4
 	long		targetValue;	// if NOT bool function
 	int			modLog;		// for printing logs cnt % modLog == 0
+	char 		print_msg[128];	// for primiting functional inertation
 	union		eng_un_int_func f;
 };
 
@@ -111,7 +112,7 @@ static bool						eng_fl_error(int flags){
 #define eng_create_int(...) (struct eng_int_interval)\
 {.useDim = 4, .stepX = 1, .stepY = 1, .stepZ = 1, .stepZ1 = 1,\
  .flags = ENG_PRINT_FLAG, .modLog = 0,\
- .f = eng_un_int_func_api,__VA_ARGS__};	
+ .f = eng_un_int_func_api, .print_msg="", __VA_ARGS__};	
 
 // construct from file
 struct eng_int_interval 		eng_loadfromfile(const char *cfgname, bool strict);
