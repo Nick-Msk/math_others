@@ -56,15 +56,20 @@ struct eng_int_interval {
 	int			fromX;	// for now only 4 dims are supported
 	int			toX;
 	int			stepX;	// 1 by default
+	int			iterX;
 	int			fromY;
 	int			toY;
 	int			stepY;	// 1 by default
+	int			iterY;
 	int			fromZ;
 	int			toZ;
 	int			stepZ;	// 1 by default
+	int			iterZ;
 	int			fromZ1;
 	int			toZ1;
 	int			stepZ1;	// 1
+	int			iterZ1;
+	//------------------------------------------------------
 	int			flags;	// 0x1 , 0x2, 0x3, 0x4
 	long		targetValue;	// if NOT bool function
 	int			modLog;		// for printing logs cnt % modLog == 0
@@ -111,6 +116,7 @@ static bool						eng_fl_error(int flags){
 // constructor (with filling f_gen()
 #define eng_create_int(...) (struct eng_int_interval)\
 {.useDim = 4, .stepX = 1, .stepY = 1, .stepZ = 1, .stepZ1 = 1,\
+ .iterX = 0, .iterY = 0, .iterZ = 0, .iterZ1 = 0,\
  .flags = ENG_PRINT_FLAG, .modLog = 0,\
  .f = eng_un_int_func_api, .print_msg="", __VA_ARGS__};	
 
@@ -119,17 +125,17 @@ struct eng_int_interval 		eng_loadfromfile(const char *cfgname, bool strict);
 
 // runners (just true/false or == targetValue)
 // inteter
-// TODO: replace to eng_int_run(...);
+// Common Integer runner!
 int								eng_int_run(struct eng_int_interval rt);
-
+/*
 int								eng_int_1dim(struct eng_int_interval rt);
-
 int                             eng_int_2dim(struct eng_int_interval rt);
-
 int								eng_int_3dim(struct eng_int_interval rt);
+int								eng_int_4dim(struct eng_int_interval rt); */
 
-int								eng_int_4dim(struct eng_int_interval rt);
-
+// check to avoid the same result
+bool							eng_check_previous(double val);
+void							eng_check_reset(void);
 // float
 int								eng_flt_1dim(struct eng_flt_interval rt);
 

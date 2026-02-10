@@ -1,9 +1,35 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <math.h>
 
 #include "eng_runner.h"
 #include "log.h"
 #include "checker.h"
+
+double                  		g_eps = FLT_EPSILON;    // for now
+
+#define                  		PREV_RES_CNT   100
+double                   		prev_results[PREV_RES_CNT];
+int                             pos = 0;
+
+bool                            eng_check_previous(double val){
+    for (int i = 0; i < pos; i++)
+        if (fabs(val - prev_results[i]) < g_eps){
+ 	       	//logsimple("value %f is again", val);
+            return true;
+        }
+    if (pos < PREV_RES_CNT){
+        prev_results[pos++] = val;      // save the value
+        logsimple("val = %.20e", val);
+    } else
+        fprintf(stderr, "Position is over %d\n", PREV_RES_CNT);
+    return false;
+}
+
+void							eng_check_reset(void){
+	pos = 0;
+}
 
 // interval
 static void						skip_line(FILE *f){
@@ -102,32 +128,140 @@ struct eng_int_interval        	eng_loadfromfile(const char *cfgname, bool stric
 	return logret(st, "... is_ok - %s", bool_str(eng_fl_error(st.flags)));
 }
 
+// utiversal wrapper for integer
+static bool						wrap_int(struct eng_int_interval rt){
+	bool					res = false;
+	int						dim = rt.useDim;
+	bool					targetValueFlag = eng_fl_targetValue(rt.flags);
+	// TODO:
+	switch (dim){
+		case 1:
+			if (targetValueFlag)
+				res = rt.f.f_int_1dim(rt.iterX, rt.targetValue);
+			else
+				res = rt.f.f_int_1dim_bool(rt.iterX);
+		break;
+		case 2:	
+			if (targetValueFlag)
+				res = rt.f.f_int_2dim(rt.iterX, rt.iterY, rt.targetValue);
+			else
+				res = rt.f.f_int_2dim_bool(rt.iterX, rt.iterY);
+		break;
+		case 3:
+			if (targetValueFlag)
+				res = rt.f.f_int_3dim(rt.iterX, rt.iterY, rt.iterZ, rt.targetValue);
+			else
+				res = rt.f.f_int_3dim_bool(rt.iterX, rt.iterY, rt.iterZ);
+		break;
+		case 4:
+			if (targetValueFlag)
+				res = rt.f.f_int_4dim(rt.iterX, rt.iterY, rt.iterZ, rt.iterZ1, rt.targetValue);
+			else
+				res = rt.f.f_int_4dim_bool(rt.iterX, rt.iterY, rt.iterZ, rt.iterZ1);
+		break;
+		default:
+			fprintf(stderr, "Unsupported DIM %d\n", dim);
+			// userraiseerr() TODO:
+		break;
+	}
+	return res;
+}
+
+// util, static
+static int						find_greatest(struct eng_int_interval rt){
+	logenter("...");
+	int 	greatest = MAX(abs(rt.fromX), abs(rt.toX) );
+	if (rt.useDim > 1)
+		greatest = GREATEST(greatest, abs(rt.fromY), abs(rt.toY) );
+	if (rt.useDim > 2)
+		greatest = GREATEST(greatest, abs(rt.fromZ), abs(rt.toZ));
+	if (rt.useDim)
+		greatest = GREATEST(greatest, abs(rt.fromZ1), abs(rt.toZ1));
+	return logret(greatest, "gr: %d", greatest); // logautoret(greatest);
+}
+
 // general int runner
 int								eng_int_run(struct eng_int_interval rt){
 	logenter("DIM %d", rt.useDim);
 
-	int ret = 0;
+	int 					total = 0;
+	static unsigned long	cnt = 0;
+	bool					printFlag 		= eng_fl_print(rt.flags);
+	bool					stopRun 		= eng_fl_stopRun(rt.flags);
+	bool					targetValueFlag = eng_fl_targetValue(rt.flags);
+	int greatest = find_greatest(rt);
+	logmsg("radius till %d", greatest);
 
-	switch (rt.useDim){
-		case 1:
-			ret = eng_int_1dim(rt);
-		break;
-		case 2:
-			ret = eng_int_2dim(rt);
-		break;
-		case 3:
-			ret = eng_int_3dim(rt);
-		break;
-		case 4:
-			ret = eng_int_4dim(rt);
-		break;
-		default:
-			fprintf(stderr, "%s : unsupported DIM %d for integer runner\n", __func__, rt.useDim);
-	}
+	if (rt.useDim < 2)
+		rt.fromY = rt.toY = 0;	// to make ONLY 1 cycle
+		
+	if (rt.useDim < 3)
+		rt.fromZ = rt.toZ = 0;	// to make ONLY 1 cycle
+	
+	if (rt.useDim < 4)
+		rt.fromZ1 = rt.toZ1 = 0;	// to make ONLY 1 cycle
 
-	return logret(ret, "Total found %d", ret);
+	// iterator need to be here
+	for (int radius = 0; radius <= greatest; radius += rt.stepX){	// 1 step for ALL dums!
+		if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
+			logsimple("cnt=%lu, radius %d", cnt, radius);
+		// go throws dimensions																				
+		// iterator need to be here
+		for (rt.iterX = MAX(-radius, rt.fromX); rt.iterX <= MIN(radius, rt.toX); rt.iterX += rt.stepX)
+		{
+			for (rt.iterY = MAX(-radius, rt.fromY); rt.iterY <= MIN(radius, rt.toY); rt.iterY += rt.stepY)
+			{
+				for (rt.iterZ = MAX(-radius, rt.fromZ); rt.iterZ <= MIN(radius, rt.toZ); rt.iterZ += rt.stepZ)
+				{
+					for (rt.iterZ1 = MAX(-radius, rt.fromZ1); rt.iterZ1 <= MIN(radius, rt.toZ1); rt.iterZ1 += rt.stepZ1)
+					{
+						// exec wrapper here!
+						// for ALL dims
+						bool res = wrap_int(rt);
+						if (res){
+							if (printFlag){
+								if (strlen(rt.print_msg) > 0){	// MUST contains %d TODO: rework!
+									switch (rt.useDim){
+										case 1: printf(rt.print_msg, rt.iterX);
+										break;
+										case 2: printf(rt.print_msg, rt.iterX, rt.iterY);
+										break;
+										case 3: printf(rt.print_msg, rt.iterX, rt.iterY, rt.iterZ);
+										break;
+										case 4: printf(rt.print_msg, rt.iterX, rt.iterY, rt.iterZ, rt.iterZ1);
+										break;
+									}
+								}
+								else {
+									printf("Target function(%d, ", rt.iterX);
+									if (rt.useDim > 1)
+										printf("%d, ", rt.iterY);
+									if (rt.useDim > 2)
+										printf("%d, ", rt.iterZ);
+									if (rt.useDim > 3)
+										printf("%d ", rt.iterZ1);
+									printf(" is true ");
+								}
+								if (targetValueFlag)
+									printf("(for %ld)\n", rt.targetValue);
+								else
+									printf("\n");
+							}
+							if (stopRun)
+		    	            	return 1;
+        			   		else
+            		   			logauto(total++);
+						}
+					}
+				}
+			}
+		}
+	}	
+
+	return logret(total, "Total found %d", total);
 }
 
+/*
 // for 1 dim int
 int								eng_int_1dim(struct eng_int_interval rt){
 	int						total = 0;
@@ -136,11 +270,10 @@ int								eng_int_1dim(struct eng_int_interval rt){
 	bool					printFlag 		= eng_fl_print(rt.flags);
 	bool					stopRun 		= eng_fl_stopRun(rt.flags);
 
-    // iterator need to be here
     for (int x = rt.fromX; x <= rt.toX; x += rt.stepX){
 		if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
 			logsimple("cnt=%lu", cnt);
-        if (
+        if ( // TOdo: move exec in wrapper! wrap_int(struct eng_int_interval rt)
 			(targetValueFlag && rt.f.f_int_1dim(x, rt.targetValue)) ||
 			(!targetValueFlag && rt.f.f_int_1dim_bool(x))
 		)
@@ -276,7 +409,7 @@ int                             eng_int_4dim(struct eng_int_interval rt){
 				
         		}
     return total;
-}
+} */
 
 // INTERVAL version, TODO: rework to normal version with decreasing stepX when neccessary
 int                             eng_flt_1dim(struct eng_flt_interval rt){
@@ -380,7 +513,7 @@ int                             eng_check_int2dim_interval(struct eng_int_interv
 	int total = 0;
     for (long i = val_from; i <= val_to; i++){
 		rt.targetValue = i;	
-    	total += eng_int_2dim(rt);
+    	total += eng_int_run(rt);
 	}
     return logret(total, "FOUND: %d", total);
 }
