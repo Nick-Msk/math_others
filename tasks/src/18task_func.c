@@ -6,27 +6,6 @@
 #include "eng_runner.h"
 #include "log.h"
 
-double			g_eps = FLT_EPSILON;	// for now
-
-// TODO: use separate module
-#define			 PREV_RES_CNT 	100
-double			 prev_results[PREV_RES_CNT];
-int				 pos = 0;
-
-bool 					eng_check_previous(double val){
-	for (int i = 0; i < pos; i++)
-		if (fabs(val - prev_results[i]) < g_eps){
-			//logsimple("value %f is again", val);
-			return true;
-		}
-	if (pos < PREV_RES_CNT){
-		prev_results[pos++] = val;	// save the value
-		logsimple("val = %.20e", val);
-	} else 
-		fprintf(stderr, "Position is over %d\n", PREV_RES_CNT);
-	return false;
-}
-
 // x2 - 2 = sqrt(x)
 static inline bool 		checkfunc(double x){
 	double res = x * x - 2 - sqrt(x + 2);
@@ -41,8 +20,10 @@ bool 					myboolfunc(int x, int y, int z){
 		return false;
 	double val = ( (double) x + sqrt(y)) / (double) z;
 	bool res = checkfunc(val);
-	if (res && !eng_check_previous(val) )
+	if (res && !eng_check_previous(val) ){
+		logsimple("x = %d, y = %d, z = %d", x, y, z);
 		return true;
+	}
 	else
 		return false;	// no need to recalculate again
 }
