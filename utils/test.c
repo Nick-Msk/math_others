@@ -85,9 +85,10 @@ check_duplicate_num(Utest *tests, int cnt, int *num)
 	for (int i = 0; i < cnt - 1; i++)
 		if (tests[i].num != 0 && tests[i].num == tests[i + 1].num)		// multiple 0 is allowed
 		{
-			if (num)
+			if (num){
 				*num = tests[i].num;
 				return false;
+			}
 		}
 	return true;
 }
@@ -127,7 +128,7 @@ check_dependencies(FILE *out, Utest *tests, int testnum, int cnt)
     fprint(out, "Start cheking dependency for test %d (%d)\n", t->num, testnum);
 
 	offsetinc(1);
-    for (j = 0; j < TEST_MAX_DEP; j++)
+    for (j = 0; j < TEST_MAX_DEP; j++){
         if ((dep = t->dep_list[j]))
         {
             Utest key_test = testnew(.num = dep);
@@ -141,7 +142,7 @@ check_dependencies(FILE *out, Utest *tests, int testnum, int cnt)
                     break;
                 }
         }
-
+	}
 	offsetinc(-1);
     if (j == TEST_MAX_DEP)
         fprint(out, "(All dependencies are passed)\n\n");
@@ -426,7 +427,11 @@ test_str_equal_ne(const char *restrict source, int sz, const char *restrict patt
 bool
 test_str_like(const char *restrict source, int sz, const char *restrict pattern)
 {
+	#if defined(__clang__)
 	return strnstr(source, pattern, sz) != 0;
+	#else /* __GNUC__ */
+	return strstr(source, pattern) != 0;
+	#endif
 }
 
 // NOTE: will be checked separately

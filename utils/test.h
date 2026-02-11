@@ -6,10 +6,17 @@
 #include "log.h"
 #include "error.h"
 
-static const int 		TEST_MAX_DEP		= 5;		// max count of dependencies
-static const int		TEST_MAX_NAME		= 40;
-static const int		TEST_MAX_DESC		= 255;
-static const int		TEST_PATTERN_MAX_SZ = 4096;		// maximusm size of pattern for comparator
+#if defined(__clang__)
+	static const int 		TEST_MAX_DEP		= 5;		// max count of dependencies
+	static const int		TEST_MAX_NAME		= 40;
+	static const int		TEST_MAX_DESC		= 255;
+	static const int		TEST_PATTERN_MAX_SZ = 4096;		// maximusm size of pattern for comparator
+#else /* __GNUC__ */
+	#define			 		TEST_MAX_DEP		  5
+	#define 				TEST_MAX_NAME		  40
+	#define					TEST_MAX_DESC		  255
+	#define					TEST_PATTERN_MAX_SZ   4096
+#endif
 
 typedef enum
 { 	  TEST_NOT_RUN = 0			// initial, test isn't runned yet
