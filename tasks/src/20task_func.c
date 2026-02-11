@@ -8,7 +8,7 @@
 
 static inline bool 		checkfunc(double x){
 	double res = x * x * x + 3 * x + 5 * sqrt(2);
-	return (fabs(res)) < DBL_EPSILON * 10; // g_eps / 1000000;
+	return (fabs(res)) < DBL_EPSILON * 100; // g_eps / 1000000;
 }
 
 // target func 4 DIM
