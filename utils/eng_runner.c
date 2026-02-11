@@ -218,9 +218,10 @@ int								eng_int_run(struct eng_int_interval rt){
 	// iterator need to be here
 	for (int radius = 0; radius <= greatest; radius += rt.stepX){	// 1 step for ALL dums!
 		if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
-			logsimple("cnt=%lu, radius %d", cnt, radius);
+			logsimple("cnt=%lu, radius %d, gr %d", cnt, radius, greatest);
 		// go throws dimensions																				
 		// iterator need to be here
+		//logmsg("fromx %d, tox %d radius %d", MAX(-radius, rt.fromX), MIN(radius, rt.toX), radius);
 		for (rt.iterX = MAX(-radius, rt.fromX); rt.iterX <= MIN(radius, rt.toX); rt.iterX += rt.stepX)
 		{
 			for (rt.iterY = MAX(-radius, rt.fromY); rt.iterY <= MIN(radius, rt.toY); rt.iterY += rt.stepY)
@@ -229,6 +230,9 @@ int								eng_int_run(struct eng_int_interval rt){
 				{
 					for (rt.iterZ1 = MAX(-radius, rt.fromZ1); rt.iterZ1 <= MIN(radius, rt.toZ1); rt.iterZ1 += rt.stepZ1)
 					{
+
+						if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
+							logsimple("cnt=%lu, x %d y %d z %d z1 %d", cnt, rt.iterX, rt.iterY, rt.iterZ, rt.iterZ1);
 						// exec wrapper here!
 						// for ALL dims
 						bool res = wrap_int(rt);
