@@ -4,8 +4,11 @@
 #include <stdio.h>
 #include "bool.h"
 
-//static const int		MAX_MODULE = 20;	// for clang
-#define					MAX_MODULE 20
+#if defined(__clang__)
+	static const int		MAX_MODULE = 20;	// for clang
+#else											
+	#define					MAX_MODULE 20
+#endif /* __clang__ */
 
 typedef enum {
 	LOGOFF					= 0,

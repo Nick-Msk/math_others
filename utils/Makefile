@@ -1,34 +1,39 @@
 CC=gcc #clang
-CFLAGS= -I./ -Wall -Wextra -std=gnu11 -g -O0 -Wno-initializer-overrides
+CFLAGS= -I./ -Wall -Wextra -std=gnu11 -g -O0
 # -Wno-initializer-overrides -Wno-unused-function -Wno-format-zero-length
 LDFLAGS=
 LDLIBS=
 
 all:
 
-checker: checker.c log.o test.o error.o
+checker: checker.c lib/log.o lib/test.o lib/error.o
 	$(CC) $(CFLAGS) -DCHECKERTESTING $^ -o test/$@_test
 
-checker.o: checker.c log.c
+lib/checker.o: checker.c
 	$(CC) $(CFLAGS) $^ -c
 	@mv $@ lib/
 
-error: error.c log.o common.o test.o
+error: error.c lib/log.o lib/common.o lib/test.o
 	$(CC) $(CFLAGS) -DERRORTESTING $^ -o test/$@_test
 
-error.o: error.c log.o common.o
+lib/error.o: error.c
 	$(CC) $(CFLAGS)  $^ -c
 	@mv $@ lib/
 
-log: log.c test.o error.o
+log: log.c lib/test.o lib/error.o
 	$(CC) $(CFLAGS) -DLOGTESTING $^ -o test/$@_test
 
-log.o:	log.c
+lib/log.o:	log.c
 	$(CC) $(CFLAGS) $^ -c
 	@mv $@ lib/
 
-common.o: common.c
+lib/test.o:	test.c
 	$(CC) $(CFLAGS) $^ -c
+	@mv $@ lib/
+
+lib/common.o: common.c
+	$(CC) $(CFLAGS) $^ -c
+	@mv $@ lib/
 
 # to be replaced by metric.c
 compl_alg: compl_alg.c

@@ -21,12 +21,14 @@ API:
 #define 		TOTAL_MOD		"Total modules[%d]\n"
 #define 		MODULE_DESC		"Modname(%d) %s: level[%d]\n"
 
-// static 			const int		MAX_SZ				= 4096;			// better to use POSIX or SC limitation instead of this constant
-// define for gcc
-#define			MAX_SZ			4096																	
-//static 			const int		TIME_SZ				= 100;
-// define for gcc
-#define 		TIME_SZ			100
+
+#if defined(__clang__)
+	static 			const int		MAX_SZ				= 4096;			// better to use POSIX or SC limitation instead of this constant
+	static 			const int		TIME_SZ				= 100;
+#else /*__GNUC__ */
+	#define			MAX_SZ			4096																	
+	#define 		TIME_SZ			100
+#endif /* __clang__ */
 
 static			const int		OFFSET_INC			= 4;
 
@@ -576,11 +578,11 @@ f5_lv2(void)
 static void
 f5_lv1(void)
 {
-	logenter("");
+	logenter(" ");
 	logmsg("inside 1");
 	f5_lv2();
 	logmsg("outside 1");
-	logret(0, "");
+	logret(0, " ");
 }
 
 static TestStatus
@@ -593,7 +595,7 @@ f5(void)
 
 	loginit(test_name, false, 0, "start test enclosure macro...");
 	logmsg("test1");
-	logmsg("");
+	logmsg(" ");
 	logmsg("-");
 	logmsg(0);
 	logmsg("-----");
@@ -617,7 +619,7 @@ f6_lv2(void)
 static void
 f6_lv1(void)
 {
-	logenter("");
+	logenter(" ");
 	logmsg("do smth...");
 	f6_lv2();
 }
