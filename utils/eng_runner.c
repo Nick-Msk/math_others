@@ -33,8 +33,9 @@ bool                            eng_check_previous(double val, const char *msg, 
             return true;
         }
     if (pos_result < ENG_PREV_RES_CNT){
-        prev_results[pos_result].val = val;      // save the value
-		strncpy(prev_results[pos_result++].msg, msg, sz);
+		struct eng_resultset res = {.val = val};
+		strncpy(res.msg, msg, sz);
+        prev_results[pos_result++] = res;      // save the value
         logsimple("val = %.20e", val);
     } else
         fprintf(stderr, "Position is over %d\n", ENG_PREV_RES_CNT);
@@ -233,6 +234,7 @@ int								eng_int_run(struct eng_int_interval rt){
 						bool res = wrap_int(rt);
 						if (res){
 							if (printFlag){
+								logmsg("total %d, pos_result %d", total, pos_result);
 								if (total == pos_result - 1)
 									printf("%s\n", 	prev_results[pos_result - 1].msg);
 								if (strlen(rt.print_msg) > 0) { // that's a bit stupid, my understanding all messages must be via prev_result[].msg 
