@@ -134,7 +134,7 @@ int								eng_int_3dim(struct eng_int_interval rt);
 int								eng_int_4dim(struct eng_int_interval rt); */
 
 // check to avoid the same result
-bool							eng_check_previous(double val);
+bool							eng_check_previous(double val, const char *msg, int sz);
 void							eng_check_reset(void);
 // float
 int								eng_flt_1dim(struct eng_flt_interval rt);

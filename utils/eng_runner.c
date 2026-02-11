@@ -7,28 +7,42 @@
 #include "log.h"
 #include "checker.h"
 
-double                  		g_eps = FLT_EPSILON;    // for now
+double                  		g_eng_eps = FLT_EPSILON;    // for now
 
-#define                  		PREV_RES_CNT   100
-double                   		prev_results[PREV_RES_CNT];
-int                             pos = 0;
 
-bool                            eng_check_previous(double val){
-    for (int i = 0; i < pos; i++)
-        if (fabs(val - prev_results[i]) < g_eps){
+#if defined(__clang__)
+	static const int			ENG_PREV_RES_CNT = 100;
+	static const int			ENG_MAXMSG 		 = 128; 
+#else /* __GNUC__ */
+	#define                  	ENG_PREV_RES_CNT   100
+	#define						ENG_MAXMSG 		   128
+#endif
+
+struct eng_resultset {
+	double 	val;
+	char	msg[ENG_MAXMSG];
+};
+
+static struct eng_resultset     prev_results[ENG_PREV_RES_CNT];
+static int                      pos_result = 0;
+
+bool                            eng_check_previous(double val, const char *msg, int sz){
+    for (int i = 0; i < pos_result; i++)
+        if (fabs(val - prev_results[i].val) < g_eng_eps){
  	       	//logsimple("value %f is again", val);
             return true;
         }
-    if (pos < PREV_RES_CNT){
-        prev_results[pos++] = val;      // save the value
+    if (pos_result < ENG_PREV_RES_CNT){
+        prev_results[pos_result].val = val;      // save the value
+		strncpy(prev_results[pos_result++].msg, msg, sz);
         logsimple("val = %.20e", val);
     } else
-        fprintf(stderr, "Position is over %d\n", PREV_RES_CNT);
+        fprintf(stderr, "Position is over %d\n", ENG_PREV_RES_CNT);
     return false;
 }
 
 void							eng_check_reset(void){
-	pos = 0;
+	pos_result = 0;
 }
 
 // interval
@@ -169,7 +183,6 @@ static bool						wrap_int(struct eng_int_interval rt){
 
 // util, static
 static int						find_greatest(struct eng_int_interval rt){
-	logenter("...");
 	int 	greatest = MAX(abs(rt.fromX), abs(rt.toX) );
 	if (rt.useDim > 1)
 		greatest = GREATEST(greatest, abs(rt.fromY), abs(rt.toY) );
@@ -177,7 +190,7 @@ static int						find_greatest(struct eng_int_interval rt){
 		greatest = GREATEST(greatest, abs(rt.fromZ), abs(rt.toZ));
 	if (rt.useDim)
 		greatest = GREATEST(greatest, abs(rt.fromZ1), abs(rt.toZ1));
-	return logret(greatest, "gr: %d", greatest); // logautoret(greatest);
+	return logautoret(greatest);  // logret(greatest, "gr: %d", greatest); // 
 }
 
 // general int runner
@@ -220,19 +233,9 @@ int								eng_int_run(struct eng_int_interval rt){
 						bool res = wrap_int(rt);
 						if (res){
 							if (printFlag){
-								if (strlen(rt.print_msg) > 0){	// MUST contains %d TODO: rework!
-									switch (rt.useDim){
-										case 1: printf(rt.print_msg, rt.iterX);
-										break;
-										case 2: printf(rt.print_msg, rt.iterX, rt.iterY);
-										break;
-										case 3: printf(rt.print_msg, rt.iterX, rt.iterY, rt.iterZ);
-										break;
-										case 4: printf(rt.print_msg, rt.iterX, rt.iterY, rt.iterZ, rt.iterZ1);
-										break;
-									}
-								}
-								else {
+								if (total == pos_result - 1)
+									printf("%s\n", 	prev_results[pos_result - 1].msg);
+								if (strlen(rt.print_msg) > 0) { // that's a bit stupid, my understanding all messages must be via prev_result[].msg 
 									printf("Target function(%d, ", rt.iterX);
 									if (rt.useDim > 1)
 										printf("%d, ", rt.iterY);
@@ -260,156 +263,6 @@ int								eng_int_run(struct eng_int_interval rt){
 
 	return logret(total, "Total found %d", total);
 }
-
-/*
-// for 1 dim int
-int								eng_int_1dim(struct eng_int_interval rt){
-	int						total = 0;
-	static unsigned long	cnt = 0;
-	bool					targetValueFlag = eng_fl_targetValue(rt.flags);
-	bool					printFlag 		= eng_fl_print(rt.flags);
-	bool					stopRun 		= eng_fl_stopRun(rt.flags);
-
-    for (int x = rt.fromX; x <= rt.toX; x += rt.stepX){
-		if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
-			logsimple("cnt=%lu", cnt);
-        if ( // TOdo: move exec in wrapper! wrap_int(struct eng_int_interval rt)
-			(targetValueFlag && rt.f.f_int_1dim(x, rt.targetValue)) ||
-			(!targetValueFlag && rt.f.f_int_1dim_bool(x))
-		)
-		{
-            if (printFlag){
-				if (strlen(rt.print_msg) > 0)	// MUST contains %d
-					printf(rt.print_msg, x);
-				else
-					printf("Target function(%d) is true ", x);
-				if (targetValueFlag)
-					printf("(for %ld)\n", rt.targetValue);
-				else
-					printf("\n");
-			}
-			if (stopRun)
-                return 1;
-            else
-                total++;
-        }
-	}
-	return total;
-}
-
-int                             eng_int_2dim(struct eng_int_interval rt){
-	int             		total = 0;
-	static unsigned long	cnt = 0;
-	bool					targetValueFlag = eng_fl_targetValue(rt.flags);
-	bool					printFlag 		= eng_fl_print(rt.flags);
-	bool					stopRun 		= eng_fl_stopRun(rt.flags);
-
-    // iterator need to be here
-    for (int x = rt.fromX; x <= rt.toX; x += rt.stepX)
-    	for (int y = rt.fromY; y <= rt.toY; y += rt.stepY){
-			if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
-				logsimple("cnt=%lu", cnt);
-        	if (
-				(targetValueFlag && rt.f.f_int_2dim(x, y, rt.targetValue)) ||
-				(!targetValueFlag && rt.f.f_int_2dim_bool(x, y))
-			)
-			{
-            	if (printFlag){
-					if (strlen(rt.print_msg) > 0)	// MUST contains %d %d
-						printf(rt.print_msg, x, y);
-                	else
-						printf("Target function(%d, %d) is true", x, y);
-					if (targetValueFlag)
-						printf("for %ld)\n", rt.targetValue);
-					else
-						printf("\n");
-				}
-                if (stopRun)
-                   	return 1;
-                else
-                    total++;
-            }
-        }
-    return total;
-}
-
-
-int                             eng_int_3dim(struct eng_int_interval rt){
-	int             		total = 0;
-	static unsigned long	cnt = 0;
-	bool					targetValueFlag = eng_fl_targetValue(rt.flags);
-	bool					printFlag 		= eng_fl_print(rt.flags);
-	bool					stopRun 		= eng_fl_stopRun(rt.flags);
-
-    // iterator need to be here
-    for (int x = rt.fromX; x <= rt.toX; x += rt.stepX)
-    	for (int y = rt.fromY; y <= rt.toY; y += rt.stepY)
-			for (int z = rt.fromZ; z <= rt.toZ; z += rt.stepZ){
-					if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
-						logsimple("cnt=%lu", cnt);
-					if (
-						(targetValueFlag && rt.f.f_int_3dim(x, y, z, rt.targetValue)) ||
-						(!targetValueFlag && rt.f.f_int_3dim_bool(x, y, z))
-					)
-					{
-						if (printFlag){
-							if (strlen(rt.print_msg) > 0){	// MUST contains %d %d %d
-								printf(rt.print_msg, x, y, z);
-							} else 
-								printf("Target function(%d, %d, %d) is true", x, y, z);
-							if (targetValueFlag)
-								printf("for %ld)\n", rt.targetValue);
-							else
-								printf("\n");
-						}
-						if (stopRun)
-							return 1;
-						else
-							total++;
-            		}
-        	}
-    return total;
-}
-
-int                             eng_int_4dim(struct eng_int_interval rt){
-	int             		total = 0;
-	static unsigned long	cnt = 0;
-	bool					targetValueFlag = eng_fl_targetValue(rt.flags);
-	bool					printFlag 		= eng_fl_print(rt.flags);
-	bool					stopRun 		= eng_fl_stopRun(rt.flags);
-
-    // iterator need to be here
-    for (int x = rt.fromX; x <= rt.toX; x += rt.stepX)
-    	for (int y = rt.fromY; y <= rt.toY; y += rt.stepZ)
-			for (int z = rt.fromZ; z <= rt.toZ; z += rt.stepZ)
-				for (int z1 = rt.fromZ1; z1 <= rt.toZ1; z1 += rt.stepZ1)
-				{
-							if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
-								logsimple("cnt=%lu", cnt);
-							if (
-								(targetValueFlag && rt.f.f_int_4dim(x, y, z, z1, rt.targetValue)) ||
-								(!targetValueFlag && rt.f.f_int_4dim_bool(x, y, z, z1))
-							)
-							{
-								if (printFlag){
-									if (strlen(rt.print_msg) > 0)	// MUST contains %d %d %d %d
-										printf(rt.print_msg, x, y, z, z1);
-									else
-										printf("Target function(%d, %d, %d) is true", x, y, z);
-									if (targetValueFlag)
-										printf("for %ld)\n", rt.targetValue);
-									else
-										printf("\n");
-								}
-								if (stopRun)
-									return 1;
-								else
-									total++;
-							}
-				
-        		}
-    return total;
-} */
 
 // INTERVAL version, TODO: rework to normal version with decreasing stepX when neccessary
 int                             eng_flt_1dim(struct eng_flt_interval rt){
