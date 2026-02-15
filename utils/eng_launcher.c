@@ -39,7 +39,7 @@ int                     main(int argc, const char *argv[]){
 
 	eng_autoprint(ru1);
 
-	printf("Check %s  [%d - %d]\n", eng_data.func_description, ru1.fromX, ru1.toX);
+	printf("Check %s\n", eng_data.func_description);
 
 	int cnt = eng_int_run(ru1);
 
