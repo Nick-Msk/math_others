@@ -60,7 +60,7 @@ isoc23_checker: src/isoc23_checker.c
 20task_11.02: src/20task_func.c lib/eng_launcher.o lib/eng_runner.o lib/log.o lib/checker.o
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
-21task_11.02: src/21task_func.c lib/eng_launcher.o lib/eng_runner.o lib/log.o lib/checker.o
+21task_11.02: src/21task_func.c lib/eng_launcher.o lib/eng_runner.o lib/log.o lib/checker.o lib/error.o
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
 UTIL_PATH = ../utils
