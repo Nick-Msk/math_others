@@ -63,6 +63,9 @@ isoc23_checker: src/isoc23_checker.c
 21task_11.02: src/21task_func.c lib/eng_launcher.o lib/eng_runner.o lib/log.o lib/checker.o lib/error.o
 		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
 
+22task_15.02: src/22task_func.c lib/eng_launcher.o lib/eng_runner.o lib/log.o lib/checker.o lib/error.o
+		$(CC) $(CFLAGS)  $^ $(LDFLAGS) -o out/$@
+
 UTIL_PATH = ../utils
 
 # libs from utils
