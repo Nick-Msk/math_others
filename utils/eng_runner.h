@@ -99,24 +99,24 @@ typedef struct eng_int_interval {
 	int					useDim;	// now is limited to 10
 	eng_int_dim			dim[ENG_DIM_CAP - 1];	// 0..9
 	//------------------------------------------------------
-	int			flags;	// 0x1 , 0x2, 0x3, 0x4
-	long		targetValue;	// if NOT bool function
-	int			modLog;		// for printing logs cnt % modLog == 0
-	char 		print_msg[128];	// for primiting functional inertation TODO:remove, obsolete
-	union		eng_un_int_func f;
+	int					flags;	// 0x1 , 0x2, 0x3, 0x4
+	long				targetValue;	// if NOT bool function
+	int					modLog;		// for printing logs cnt % modLog == 0
+	char 				print_msg[128];	// for primiting functional inertation TODO:remove, obsolete
+	union				eng_un_int_func f;
 } eng_int_interval;
 
 
 typedef struct eng_flt_interval {
-	double		fromX;	// for now only 2 dims are supported
-	double		toX;
-	double		stepX;	// add initStepX ? 
-	double		fromY;
-	double		toY;
-	double		stepY;	// probably initStepY
-	int			flags;
-	double		targetValue;	// if NOT bool function
-	int			modLog;		// for printing logs cnt % modLog == 0
+	double				fromX;	// for now only 2 dims are supported
+	double				toX;
+	double				stepX;	// add initStepX ? 
+	double				fromY;
+	double				toY;
+	double				stepY;	// probably initStepY
+	int					flags;
+	double				targetValue;	// if NOT bool function
+	int					modLog;		// for printing logs cnt % modLog == 0
 	union {
 		tf_general		f_gen;
 		tf_flt2dim		f_flt_2dim;
@@ -143,17 +143,26 @@ static bool						eng_fl_error(int flags){
 }
 
 // constructor (with filling f_gen()
-#define			eng_dim(...)(eng_int_dim){.from = 0, .to = 0, .step = 1, .iter = 0, __VA_ARGS__}
-#define			eng_init_dims(...)(eng_int_dim[]){__VA_ARGS__}
+#define			eng_int_dim_init(...)(eng_int_dim){.from = 0, .to = 0, .step = 1, .iter = 0, __VA_ARGS__}
+#define			eng_init_dims(dm, ...)(eng_int_dim[dm]){__VA_ARGS__} // useless...
 
-#define 		eng_create_int(...) (struct eng_int_interval)\
-{.useDim = 4,\
-\
+#define 		eng_create_int_init(dm, ...) (struct eng_int_interval)\
+{.useDim = dm,\
  .flags = ENG_PRINT_FLAG, .modLog = 0,\
  .f = eng_un_int_func_api, .print_msg="", __VA_ARGS__};	
 
+static inline eng_int_interval 	eng_create_int(int sz){
+	if (sz == 0)
+		sz = 10;
+	eng_int_interval res = eng_create_int_init(sz);
+	for (int i = 0; i <= sz; i++)
+		res.dim[i] = eng_int_dim_init();
+	return res;
+}
+
+
 // construct from file
-struct eng_int_interval 		eng_loadfromfile(const char *cfgname, bool strict);
+eng_int_interval 				eng_loadfromfile(const char *cfgname, bool strict);
 
 // runners (just true/false or == targetValue)
 // inteter

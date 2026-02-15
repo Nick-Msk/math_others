@@ -77,7 +77,7 @@ struct eng_int_interval        	eng_loadfromfile(const char *cfgname, bool stric
 	logenter("from %s, strict [%s]", cfgname, bool_str(strict));
 
 	// use defaults
-	struct eng_int_interval st =  eng_create_int();
+	struct eng_int_interval st =  eng_create_int(0);
 
 	FILE *f = fopen(cfgname, "r");
 	if (!inv(f != 0, "unable to opern file") ){
@@ -154,7 +154,7 @@ struct eng_int_interval        	eng_loadfromfile(const char *cfgname, bool stric
 	fclose(f);
 	if (strict){
 		// TODO: probable some checking here...
-		if (st.useDim > 4 || st.useDim < 1){
+		if (st.useDim > 10 || st.useDim < 1){
 			st.flags |= ENG_ERROR_FLAG;
 			fprintf(stderr, "Dim %d is out of range (1-4)", st.useDim);
 		}
@@ -287,12 +287,13 @@ int								eng_int_run(struct eng_int_interval rt){
 	// iterator need to be here, go up to the radius
 	for (int radius = 0; radius <= greatest; radius += 1){	// 1 step for ALL dums!
 		if (rt.modLog > 0 && printFlag && cnt++ % rt.modLog == 0)
-			logsimple("cnt=%lu, radius %d, gr %d", cnt, radius, greatest);
+			logmsg("cnt=%lu, radius %d, gr %d", cnt, radius, greatest);
 
-		for (int i = 1; i <= ENG_DIM_CAP; i++){ // 1 till 10
+		for (int i = 0; i < ENG_DIM_CAP; i++){ // 1 till 10
 			// setup limits
-			to[i] 	= MIN(radius, rt.dim[i - 1].to);
-			from[i] = MAX(-radius, rt.dim[i - 1].from);
+			to[i] 	= MIN(radius, rt.dim[i].to);
+			from[i] = MAX(-radius, rt.dim[i].from);
+			logmsg("to[%d] = %d, from[%d] = %d", i, to[i], i, from[i]);
 		}
 
 #define iterdim(d) rt.dim[d].iter = from[d]; rt.dim[d].iter <= to[d]; rt.dim[d].iter += rt.dim[d].step
